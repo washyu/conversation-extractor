@@ -1,0 +1,124 @@
+pipeline {
+    agent any
+    
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '5'))
+    }
+    
+    stages {
+        stage('Setup Python Environment') {
+            steps {
+                script {
+                    if (isUnix()) {
+                        sh '''
+                            python -m venv venv
+                            . venv/bin/activate
+                            python -m pip install --upgrade pip
+                            pip install build twine wheel pytest pytest-html
+                            pip install -e .[dev]
+                            python -c "import nltk; nltk.download('punkt'); nltk.download('stopwords')"
+                        '''
+                    } else {
+                        bat '''
+                            python -m venv venv
+                            call venv\\Scripts\\activate.bat
+                            python -m pip install --upgrade pip
+                            pip install build twine wheel pytest pytest-html
+                            pip install -e .[dev]
+                            python -c "import nltk; nltk.download('punkt'); nltk.download('stopwords')"
+                        '''
+                    }
+                }
+            }
+        }
+        
+        stage('Run Tests') {
+            steps {
+                script {
+                    if (isUnix()) {
+                        sh '''
+                            . venv/bin/activate
+                            pytest --junitxml=test-results.xml --html=test-report.html
+                        '''
+                    } else {
+                        bat '''
+                            call venv\\Scripts\\activate.bat
+                            pytest --junitxml=test-results.xml --html=test-report.html
+                        '''
+                    }
+                }
+            }
+            post {
+                always {
+                    junit 'test-results.xml'
+                    publishHTML(target: [
+                        allowMissing: false,
+                        alwaysLinkToLastBuild: true,
+                        keepAll: true,
+                        reportDir: '.',
+                        reportFiles: 'test-report.html',
+                        reportName: 'Test Report'
+                    ])
+                }
+            }
+        }
+        
+        stage('Build Package') {
+            steps {
+                script {
+                    if (isUnix()) {
+                        sh '''
+                            . venv/bin/activate
+                            python -m build
+                        '''
+                    } else {
+                        bat '''
+                            call venv\\Scripts\\activate.bat
+                            python -m build
+                        '''
+                    }
+                }
+            }
+            post {
+                success {
+                    archiveArtifacts artifacts: 'dist/*', fingerprint: true
+                }
+            }
+        }
+        
+        stage('Publish to Local Repository') {
+            when {
+                branch 'main'
+            }
+            steps {
+                script {
+                    if (isUnix()) {
+                        sh '''
+                            . venv/bin/activate
+                            if [ -d "$JENKINS_HOME/pypi-repo" ]; then
+                                twine upload --repository-url file://$JENKINS_HOME/pypi-repo dist/*
+                            else
+                                echo "Local PyPI repository not found. Skipping publish step."
+                            fi
+                        '''
+                    } else {
+                        bat '''
+                            call venv\\Scripts\\activate.bat
+                            if exist "%JENKINS_HOME%\\pypi-repo" (
+                                twine upload --repository-url file://%JENKINS_HOME%/pypi-repo dist/*
+                            ) else (
+                                echo Local PyPI repository not found. Skipping publish step.
+                            )
+                        '''
+                    }
+                }
+            }
+        }
+    }
+    
+    post {
+        always {
+            cleanWs()
+        }
+    }
+}
