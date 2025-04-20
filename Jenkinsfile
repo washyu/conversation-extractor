@@ -23,17 +23,14 @@ pipeline {
             post {
                 always {
                     junit 'test-results.xml'
-                    // HTML report will be generated but not published
-                    // To publish HTML reports, install the HTML Publisher plugin
-                    // and uncomment the following lines:
-                    // publishHTML(target: [
-                    //     allowMissing: false,
-                    //     alwaysLinkToLastBuild: true,
-                    //     keepAll: true,
-                    //     reportDir: '.',
-                    //     reportFiles: 'test-report.html',
-                    //     reportName: 'Test Report'
-                    // ])
+                    publishHTML(target: [
+                        allowMissing: false,
+                        alwaysLinkToLastBuild: true,
+                        keepAll: true,
+                        reportDir: '.',
+                        reportFiles: 'test-report.html',
+                        reportName: 'Test Report'
+                    ])
                 }
             }
         }
