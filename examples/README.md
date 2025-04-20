@@ -32,6 +32,20 @@ This script:
 3. Displays the extracted topics with context
 4. Shows a summary of the topics found
 
+### Dynamic Keyword Generation
+
+`run_dynamic_keywords.py` - Demonstrates how to dynamically generate keywords from a conversation.
+
+```bash
+python run_dynamic_keywords.py
+```
+
+This script:
+1. Loads a conversation from a text file
+2. Generates dynamic keywords based on the conversation content
+3. Extracts topics using the dynamic keywords
+4. Demonstrates keyword importance tracking
+
 ## Using Your Own Conversations
 
 To use these examples with your own conversation files:
