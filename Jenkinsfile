@@ -19,6 +19,8 @@ pipeline {
         stage('Test') {
             steps {
                 sh 'pytest --junitxml=test-results.xml --html=test-report.html'
+                sh 'mkdir -p test_reports'
+                sh 'python tests/reports/generate_detailed_report.py'
             }
             post {
                 always {
@@ -30,6 +32,14 @@ pipeline {
                         reportDir: '.',
                         reportFiles: 'test-report.html',
                         reportName: 'Test Report'
+                    ])
+                    publishHTML(target: [
+                        allowMissing: false,
+                        alwaysLinkToLastBuild: true,
+                        keepAll: true,
+                        reportDir: 'test_reports',
+                        reportFiles: 'latest.html',
+                        reportName: 'Detailed Test Report'
                     ])
                 }
             }
