@@ -20,7 +20,7 @@ pipeline {
             steps {
                 sh 'pytest --junitxml=test-results.xml --html=test-report.html'
                 sh 'mkdir -p test_reports'
-                sh 'python tests/reports/generate_detailed_report.py'
+                sh 'python tests/reports/generate_csp_report.py'
             }
             post {
                 always {
@@ -38,8 +38,8 @@ pipeline {
                         alwaysLinkToLastBuild: true,
                         keepAll: true,
                         reportDir: 'test_reports',
-                        reportFiles: 'latest.html',
-                        reportName: 'Detailed Test Report'
+                        reportFiles: 'csp_latest.html',
+                        reportName: 'CSP-Compatible Test Report'
                     ])
                 }
             }
