@@ -1,0 +1,2 @@
+# Dependencies for the conversation extractor
+pytest>=7.0.0
