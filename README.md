@@ -161,8 +161,8 @@ README.md               # Project documentation
 ### Running Tests
 
 ```bash
-# Install pytest
-pip install pytest
+# Install pytest and dependencies
+pip install -e .[dev]
 
 # Run all tests
 python -m pytest tests/
@@ -176,6 +176,20 @@ python tests/reports/run_tests.py
 # Generate test report
 python tests/reports/generate_report.py
 ```
+
+### CI/CD Integration
+
+This project includes GitHub Actions workflows for continuous integration:
+
+- Automatically runs tests on multiple Python versions (3.8, 3.9, 3.10, 3.11)
+- Generates and uploads test reports as artifacts
+- Ensures all tests pass before merging
+
+To set up CI/CD for your fork:
+
+1. No configuration needed - GitHub Actions will automatically run on push/PR
+2. View test results in the Actions tab of your GitHub repository
+3. Download test reports from the workflow artifacts
 
 ## License
 
