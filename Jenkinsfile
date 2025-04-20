@@ -5,7 +5,7 @@ pipeline {
             args '-v $HOME/.cache/pip:/root/.cache/pip'
         }
     }
-    
+
     stages {
         stage('Setup') {
             steps {
@@ -15,7 +15,7 @@ pipeline {
                 sh 'python -c "import nltk; nltk.download(\'punkt\'); nltk.download(\'stopwords\')"'
             }
         }
-        
+
         stage('Test') {
             steps {
                 sh 'pytest --junitxml=test-results.xml --html=test-report.html'
@@ -23,18 +23,21 @@ pipeline {
             post {
                 always {
                     junit 'test-results.xml'
-                    publishHTML(target: [
-                        allowMissing: false,
-                        alwaysLinkToLastBuild: true,
-                        keepAll: true,
-                        reportDir: '.',
-                        reportFiles: 'test-report.html',
-                        reportName: 'Test Report'
-                    ])
+                    // HTML report will be generated but not published
+                    // To publish HTML reports, install the HTML Publisher plugin
+                    // and uncomment the following lines:
+                    // publishHTML(target: [
+                    //     allowMissing: false,
+                    //     alwaysLinkToLastBuild: true,
+                    //     keepAll: true,
+                    //     reportDir: '.',
+                    //     reportFiles: 'test-report.html',
+                    //     reportName: 'Test Report'
+                    // ])
                 }
             }
         }
-        
+
         stage('Build') {
             steps {
                 sh 'python -m build'
@@ -45,7 +48,7 @@ pipeline {
                 }
             }
         }
-        
+
         stage('Publish to Local Repository') {
             when {
                 branch 'main'
@@ -63,7 +66,7 @@ pipeline {
             }
         }
     }
-    
+
     post {
         always {
             cleanWs()
