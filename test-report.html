@@ -1,0 +1,1371 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <title id="head-title">test-report.html</title>
+      <style type="text/css">body {
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  /* do not increase min-width as some may use split screens */
+  min-width: 800px;
+  color: #999;
+}
+
+h1 {
+  font-size: 24px;
+  color: black;
+}
+
+h2 {
+  font-size: 16px;
+  color: black;
+}
+
+p {
+  color: black;
+}
+
+a {
+  color: #999;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+/******************************
+ * SUMMARY INFORMATION
+ ******************************/
+#environment td {
+  padding: 5px;
+  border: 1px solid #e6e6e6;
+  vertical-align: top;
+}
+#environment tr:nth-child(odd) {
+  background-color: #f6f6f6;
+}
+#environment ul {
+  margin: 0;
+  padding: 0 20px;
+}
+
+/******************************
+ * TEST RESULT COLORS
+ ******************************/
+span.passed,
+.passed .col-result {
+  color: green;
+}
+
+span.skipped,
+span.xfailed,
+span.rerun,
+.skipped .col-result,
+.xfailed .col-result,
+.rerun .col-result {
+  color: orange;
+}
+
+span.error,
+span.failed,
+span.xpassed,
+.error .col-result,
+.failed .col-result,
+.xpassed .col-result {
+  color: red;
+}
+
+.col-links__extra {
+  margin-right: 3px;
+}
+
+/******************************
+ * RESULTS TABLE
+ *
+ * 1. Table Layout
+ * 2. Extra
+ * 3. Sorting items
+ *
+ ******************************/
+/*------------------
+ * 1. Table Layout
+ *------------------*/
+#results-table {
+  border: 1px solid #e6e6e6;
+  color: #999;
+  font-size: 12px;
+  width: 100%;
+}
+#results-table th,
+#results-table td {
+  padding: 5px;
+  border: 1px solid #e6e6e6;
+  text-align: left;
+}
+#results-table th {
+  font-weight: bold;
+}
+
+/*------------------
+ * 2. Extra
+ *------------------*/
+.logwrapper {
+  max-height: 230px;
+  overflow-y: scroll;
+  background-color: #e6e6e6;
+}
+.logwrapper.expanded {
+  max-height: none;
+}
+.logwrapper.expanded .logexpander:after {
+  content: "collapse [-]";
+}
+.logwrapper .logexpander {
+  z-index: 1;
+  position: sticky;
+  top: 10px;
+  width: max-content;
+  border: 1px solid;
+  border-radius: 3px;
+  padding: 5px 7px;
+  margin: 10px 0 10px calc(100% - 80px);
+  cursor: pointer;
+  background-color: #e6e6e6;
+}
+.logwrapper .logexpander:after {
+  content: "expand [+]";
+}
+.logwrapper .logexpander:hover {
+  color: #000;
+  border-color: #000;
+}
+.logwrapper .log {
+  min-height: 40px;
+  position: relative;
+  top: -50px;
+  height: calc(100% + 50px);
+  border: 1px solid #e6e6e6;
+  color: black;
+  display: block;
+  font-family: "Courier New", Courier, monospace;
+  padding: 5px;
+  padding-right: 80px;
+  white-space: pre-wrap;
+}
+
+div.media {
+  border: 1px solid #e6e6e6;
+  float: right;
+  height: 240px;
+  margin: 0 5px;
+  overflow: hidden;
+  width: 320px;
+}
+
+.media-container {
+  display: grid;
+  grid-template-columns: 25px auto 25px;
+  align-items: center;
+  flex: 1 1;
+  overflow: hidden;
+  height: 200px;
+}
+
+.media-container--fullscreen {
+  grid-template-columns: 0px auto 0px;
+}
+
+.media-container__nav--right,
+.media-container__nav--left {
+  text-align: center;
+  cursor: pointer;
+}
+
+.media-container__viewport {
+  cursor: pointer;
+  text-align: center;
+  height: inherit;
+}
+.media-container__viewport img,
+.media-container__viewport video {
+  object-fit: cover;
+  width: 100%;
+  max-height: 100%;
+}
+
+.media__name,
+.media__counter {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  flex: 0 0 25px;
+  align-items: center;
+}
+
+.collapsible td:not(.col-links) {
+  cursor: pointer;
+}
+.collapsible td:not(.col-links):hover::after {
+  color: #bbb;
+  font-style: italic;
+  cursor: pointer;
+}
+
+.col-result {
+  width: 130px;
+}
+.col-result:hover::after {
+  content: " (hide details)";
+}
+
+.col-result.collapsed:hover::after {
+  content: " (show details)";
+}
+
+#environment-header h2:hover::after {
+  content: " (hide details)";
+  color: #bbb;
+  font-style: italic;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+#environment-header.collapsed h2:hover::after {
+  content: " (show details)";
+  color: #bbb;
+  font-style: italic;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+/*------------------
+ * 3. Sorting items
+ *------------------*/
+.sortable {
+  cursor: pointer;
+}
+.sortable.desc:after {
+  content: " ";
+  position: relative;
+  left: 5px;
+  bottom: -12.5px;
+  border: 10px solid #4caf50;
+  border-bottom: 0;
+  border-left-color: transparent;
+  border-right-color: transparent;
+}
+.sortable.asc:after {
+  content: " ";
+  position: relative;
+  left: 5px;
+  bottom: 12.5px;
+  border: 10px solid #4caf50;
+  border-top: 0;
+  border-left-color: transparent;
+  border-right-color: transparent;
+}
+
+.hidden, .summary__reload__button.hidden {
+  display: none;
+}
+
+.summary__data {
+  flex: 0 0 550px;
+}
+.summary__reload {
+  flex: 1 1;
+  display: flex;
+  justify-content: center;
+}
+.summary__reload__button {
+  flex: 0 0 300px;
+  display: flex;
+  color: white;
+  font-weight: bold;
+  background-color: #4caf50;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  border-radius: 3px;
+  cursor: pointer;
+}
+.summary__reload__button:hover {
+  background-color: #46a049;
+}
+.summary__spacer {
+  flex: 0 0 550px;
+}
+
+.controls {
+  display: flex;
+  justify-content: space-between;
+}
+
+.filters,
+.collapse {
+  display: flex;
+  align-items: center;
+}
+.filters button,
+.collapse button {
+  color: #999;
+  border: none;
+  background: none;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.filters button:hover,
+.collapse button:hover {
+  color: #ccc;
+}
+
+.filter__label {
+  margin-right: 10px;
+}
+
+/******************************
+ * CUSTOM CSS
+ * tests\assets\custom_style.css
+ ******************************/
+
+/* Custom styles for pytest-html report */
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+    color: #333;
+}
+
+h1, h2 {
+    color: #2c3e50;
+    margin-top: 1.5em;
+}
+
+.summary {
+    margin-bottom: 2em;
+    padding: 1em;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+}
+
+.summary h2 {
+    margin-top: 0;
+}
+
+.test-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1em;
+    margin-bottom: 1em;
+}
+
+.summary-count {
+    padding: 0.5em 1em;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.passed {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.failed {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.skipped {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.error {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.test-result {
+    margin-bottom: 1.5em;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.test-result .header {
+    padding: 0.75em 1em;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.test-result.passed .header {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.test-result.failed .header {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.test-result.skipped .header {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.test-result.error .header {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.test-result .content {
+    padding: 1em;
+    background-color: #fff;
+}
+
+.test-result .description {
+    margin-bottom: 1em;
+    padding: 0.75em;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    font-style: italic;
+}
+
+.test-result .log {
+    white-space: pre-wrap;
+    font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 0.9em;
+    padding: 0.75em;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    overflow-x: auto;
+}
+
+.test-result .log .success {
+    color: #28a745;
+}
+
+.test-result .log .error {
+    color: #dc3545;
+}
+
+.test-result .log .warning {
+    color: #ffc107;
+}
+
+.test-result .log .info {
+    color: #17a2b8;
+}
+
+.test-result .sections {
+    margin-top: 1em;
+}
+
+.test-result .section {
+    margin-bottom: 1em;
+}
+
+.test-result .section-title {
+    font-weight: bold;
+    margin-bottom: 0.5em;
+}
+
+.test-result .section-content {
+    white-space: pre-wrap;
+    font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 0.9em;
+    padding: 0.75em;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    overflow-x: auto;
+}
+
+/* Collapsible sections */
+.collapsible {
+    cursor: pointer;
+}
+
+.content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.2s ease-out;
+}
+
+.active + .content {
+    max-height: 1000px;
+}
+
+/* Highlight test names */
+.test-name {
+    font-weight: bold;
+}
+
+/* Highlight assertions */
+.assertion {
+    font-weight: bold;
+    color: #28a745;
+}
+
+/* Highlight failures */
+.failure {
+    font-weight: bold;
+    color: #dc3545;
+}
+
+/* Highlight test parameters */
+.test-parameters {
+    margin-top: 0.5em;
+    padding: 0.5em;
+    background-color: #e9ecef;
+    border-radius: 4px;
+}
+
+.test-parameters .param {
+    font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 0.9em;
+}
+
+/* Highlight test output */
+.test-output {
+    margin-top: 0.5em;
+    padding: 0.5em;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 0.9em;
+    white-space: pre-wrap;
+    overflow-x: auto;
+}
+
+/* Highlight test description */
+.test-description {
+    margin-top: 0.5em;
+    padding: 0.5em;
+    background-color: #e9ecef;
+    border-radius: 4px;
+    font-style: italic;
+}
+
+/* Highlight test steps */
+.test-step {
+    margin-top: 0.5em;
+    padding: 0.5em;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+
+.test-step .step-name {
+    font-weight: bold;
+}
+
+.test-step .step-result {
+    margin-top: 0.25em;
+    padding-left: 1em;
+}
+
+/* Highlight test values */
+.test-value {
+    font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 0.9em;
+    padding: 0.2em 0.4em;
+    background-color: #f8f9fa;
+    border-radius: 2px;
+}
+
+/* Highlight test comparisons */
+.test-comparison {
+    margin-top: 0.5em;
+    padding: 0.5em;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+
+.test-comparison .expected {
+    color: #28a745;
+}
+
+.test-comparison .actual {
+    color: #dc3545;
+}
+
+/* Highlight test duration */
+.test-duration {
+    font-size: 0.9em;
+    color: #6c757d;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .test-summary {
+        flex-direction: column;
+    }
+}
+
+      </style>
+    
+  </head>
+  <body>
+    <h1 id="title">test-report.html</h1>
+    <p>Report generated on 20-Apr-2025 at 12:13:42 by <a href="https://pypi.python.org/pypi/pytest-html">pytest-html</a>
+        v4.1.1</p>
+    <div id="environment-header">
+      <h2>Environment</h2>
+    </div>
+    <table id="environment"></table>
+    <!-- TEMPLATES -->
+      <template id="template_environment_row">
+      <tr>
+        <td></td>
+        <td></td>
+      </tr>
+    </template>
+    <template id="template_results-table__body--empty">
+      <tbody class="results-table-row">
+        <tr id="not-found-message">
+          <td colspan="4">No results found. Check the filters.</th>
+        </tr>
+    </template>
+    <template id="template_results-table__tbody">
+      <tbody class="results-table-row">
+        <tr class="collapsible">
+        </tr>
+        <tr class="extras-row">
+          <td class="extra" colspan="4">
+            <div class="extraHTML"></div>
+            <div class="media">
+              <div class="media-container">
+                  <div class="media-container__nav--left"><</div>
+                  <div class="media-container__viewport">
+                    <img src="" />
+                    <video controls>
+                      <source src="" type="video/mp4">
+                    </video>
+                  </div>
+                  <div class="media-container__nav--right">></div>
+                </div>
+                <div class="media__name"></div>
+                <div class="media__counter"></div>
+            </div>
+            <div class="logwrapper">
+              <div class="logexpander"></div>
+              <div class="log"></div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </template>
+    <!-- END TEMPLATES -->
+    <div class="summary">
+      <div class="summary__data">
+        <h2>Summary</h2>
+        <div class="additional-summary prefix">
+        </div>
+        <p class="run-count">33 tests took 00:00:04.</p>
+        <p class="filter">(Un)check the boxes to filter the results.</p>
+        <div class="summary__reload">
+          <div class="summary__reload__button hidden" onclick="location.reload()">
+            <div>There are still tests running. <br />Reload this page to get the latest results!</div>
+          </div>
+        </div>
+        <div class="summary__spacer"></div>
+        <div class="controls">
+          <div class="filters">
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="failed" disabled/>
+            <span class="failed">0 Failed,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="passed" />
+            <span class="passed">33 Passed,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="skipped" disabled/>
+            <span class="skipped">0 Skipped,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="xfailed" disabled/>
+            <span class="xfailed">0 Expected failures,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="xpassed" disabled/>
+            <span class="xpassed">0 Unexpected passes,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="error" disabled/>
+            <span class="error">0 Errors,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="rerun" disabled/>
+            <span class="rerun">0 Reruns</span>
+          </div>
+          <div class="collapse">
+            <button id="show_all_details">Show all details</button>&nbsp;/&nbsp;<button id="hide_all_details">Hide all details</button>
+          </div>
+        </div>
+      </div>
+      <div class="additional-summary summary">
+      </div>
+      <div class="additional-summary postfix">
+      </div>
+    </div>
+    <table id="results-table">
+      <thead id="results-table-head">
+        <tr>
+          <th class="sortable" data-column-type="result">Result</th>
+          <th class="sortable" data-column-type="testId">Test</th>
+          <th class="sortable" data-column-type="duration">Duration</th>
+          <th>Links</th>
+        </tr>
+      </thead>
+    </table>
+  </body>
+  <footer>
+    <div id="data-container" data-jsonblob="{&#34;environment&#34;: {&#34;Python&#34;: &#34;3.13.3&#34;, &#34;Platform&#34;: &#34;Windows-11-10.0.26100-SP0&#34;, &#34;Packages&#34;: {&#34;pytest&#34;: &#34;8.3.5&#34;, &#34;pluggy&#34;: &#34;1.5.0&#34;}, &#34;Plugins&#34;: {&#34;html&#34;: &#34;4.1.1&#34;, &#34;metadata&#34;: &#34;3.1.1&#34;}}, &#34;tests&#34;: {&#34;tests/test_coding_buddy.py::test_topic_extraction_on_coding_buddy&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_coding_buddy.py::test_topic_extraction_on_coding_buddy&#34;, &#34;duration&#34;: &#34;473 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_coding_buddy.py::test_topic_extraction_on_coding_buddy&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;473 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stdout setup -----------------------------\n\n================================================================================\nRUNNING TEST: test_topic_extraction_on_coding_buddy\n--------------------------------------------------------------------------------\n\n----------------------------- Captured stdout call -----------------------------\nLoaded conversation (8392 characters, 286 lines)\nExtracting topics with 2 lines of context...\n\nTOPIC SUMMARY:\n----------------------------------------\nPython Syntax: 42 unique contexts\nWeb Development: 21 unique contexts\nData Processing: 22 unique contexts\nADHD &amp;amp; Productivity: 8 unique contexts\nBest Practices: 16 unique contexts\nDebugging: 18 unique contexts\nDynamic Topics: 24 unique contexts\n\n------------------------------- Test Description -------------------------------\nFEATURE: Topic extraction from natural coding buddy conversation\n\nTest that we can extract and categorize topics from a natural conversation\nthat mixes technical questions, ADHD challenges, and best practices.&#34;}], &#34;tests/test_conversation_extractor.py::test_load_conversation&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_conversation_extractor.py::test_load_conversation&#34;, &#34;duration&#34;: &#34;15 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_conversation_extractor.py::test_load_conversation&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;15 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stdout setup -----------------------------\n\n================================================================================\nRUNNING TEST: test_load_conversation\n--------------------------------------------------------------------------------\n\n----------------------------- Captured stdout call -----------------------------\n\nLoading conversation from file: C:\\Users\\washy\\AppData\\Local\\Temp\\pytest-of-washy\\pytest-19\\test_load_conversation0\\test_conversation.txt\nContent loaded: 436 characters\nChecking for expected keywords in content...\n\u2713 All expected keywords found in content\n\n------------------------------- Test Description -------------------------------\nTest loading a conversation from a file.\n\nVerifies that:\n- The file can be loaded successfully\n- The content is not empty\n- Expected keywords are present in the content\n------------------------------- Test Parameters --------------------------------\ntmp_path_factory: TempPathFactory(_given_basetemp=None, _trace=&amp;lt;pluggy._tracing.TagTracerSub object at 0x000001FC82712C40&amp;gt;, _basetemp=WindowsPath(&amp;#x27;C:/Users/washy/AppData/Local/Temp/pytest-of-washy/pytest-19&amp;#x27;), _retention_count=3, _retention_policy=&amp;#x27;all&amp;#x27;)\nsample_file: WindowsPath(&amp;#x27;C:/Users/washy/AppData/Local/Temp/pytest-of-washy/pytest-19/test_load_conversation0/test_conversation.txt&amp;#x27;)\ntmp_path: WindowsPath(&amp;#x27;C:/Users/washy/AppData/Local/Temp/pytest-of-washy/pytest-19/test_load_conversation0&amp;#x27;)\nsample_conversation: &amp;quot;USER: Hello there\\nASSISTANT: Hi! How can I help you today?\\nUSER: I&amp;#x27;m looking for information about Python\\nASSISTANT: Python is a versatile programming language.\\nIt&amp;#x27;s great for beginners and experts alike.\\nUSER: What about data analysis?\\nASSISTANT: Python is excellent for data analysis.\\nLibraries like pandas and numpy are very popular.\\nUSER: Thanks for the information\\nASSISTANT: You&amp;#x27;re welcome! Let me know if you have more questions.&amp;quot;&#34;}], &#34;tests/test_conversation_extractor.py::test_load_conversation_nonexistent_file&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_conversation_extractor.py::test_load_conversation_nonexistent_file&#34;, &#34;duration&#34;: &#34;1 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_conversation_extractor.py::test_load_conversation_nonexistent_file&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;1 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stdout setup -----------------------------\n\n================================================================================\nRUNNING TEST: test_load_conversation_nonexistent_file\n--------------------------------------------------------------------------------\n\n----------------------------- Captured stdout call -----------------------------\nError loading file: [Errno 2] No such file or directory: &amp;#x27;nonexistent_file.txt&amp;#x27;\n\n------------------------------- Test Description -------------------------------\nTest loading from a nonexistent file.&#34;}], &#34;tests/test_conversation_extractor.py::test_extract_context_single_keyword&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_conversation_extractor.py::test_extract_context_single_keyword&#34;, &#34;duration&#34;: &#34;1 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_conversation_extractor.py::test_extract_context_single_keyword&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;1 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stdout setup -----------------------------\n\n================================================================================\nRUNNING TEST: test_extract_context_single_keyword\n--------------------------------------------------------------------------------\n\n----------------------------- Captured stdout call -----------------------------\n\nExtracting context for keyword: &amp;#x27;Python&amp;#x27; with 1 context lines\nChecking if keyword &amp;#x27;Python&amp;#x27; was found...\n\u2713 Keyword &amp;#x27;Python&amp;#x27; found in results\nFound 3 occurrences of &amp;#x27;Python&amp;#x27;\n\u2713 Found multiple occurrences of &amp;#x27;Python&amp;#x27;\nFirst matched line: &amp;#x27;USER: I&amp;#x27;m looking for information about Python&amp;#x27;\n\u2713 Matched line contains &amp;#x27;Python&amp;#x27;\nContext has 3 lines\n  Context[0]: &amp;#x27;ASSISTANT: Hi! How can I help you today?&amp;#x27;\n  Context[1]: &amp;#x27;USER: I&amp;#x27;m looking for information about Python&amp;#x27;\n  Context[2]: &amp;#x27;ASSISTANT: Python is a versatile programming language.&amp;#x27;\n\u2713 Context includes expected number of lines\n\n------------------------------- Test Description -------------------------------\nTest extracting context for a single keyword.\n\nVerifies that:\n- The keyword &amp;#x27;Python&amp;#x27; is found in the conversation\n- Multiple occurrences are detected\n- Context lines are properly included\n- The matched line contains the keyword\n------------------------------- Test Parameters --------------------------------\nsample_conversation: &amp;quot;USER: Hello there\\nASSISTANT: Hi! How can I help you today?\\nUSER: I&amp;#x27;m looking for information about Python\\nASSISTANT: Python is a versatile programming language.\\nIt&amp;#x27;s great for beginners and experts alike.\\nUSER: What about data analysis?\\nASSISTANT: Python is excellent for data analysis.\\nLibraries like pandas and numpy are very popular.\\nUSER: Thanks for the information\\nASSISTANT: You&amp;#x27;re welcome! Let me know if you have more questions.&amp;quot;&#34;}], &#34;tests/test_conversation_extractor.py::test_extract_context_multiple_keywords&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_conversation_extractor.py::test_extract_context_multiple_keywords&#34;, &#34;duration&#34;: &#34;0 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_conversation_extractor.py::test_extract_context_multiple_keywords&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;0 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stdout setup -----------------------------\n\n================================================================================\nRUNNING TEST: test_extract_context_multiple_keywords\n--------------------------------------------------------------------------------\n\n------------------------------- Test Description -------------------------------\nTest extracting context for multiple keywords.\n------------------------------- Test Parameters --------------------------------\nsample_conversation: &amp;quot;USER: Hello there\\nASSISTANT: Hi! How can I help you today?\\nUSER: I&amp;#x27;m looking for information about Python\\nASSISTANT: Python is a versatile programming language.\\nIt&amp;#x27;s great for beginners and experts alike.\\nUSER: What about data analysis?\\nASSISTANT: Python is excellent for data analysis.\\nLibraries like pandas and numpy are very popular.\\nUSER: Thanks for the information\\nASSISTANT: You&amp;#x27;re welcome! Let me know if you have more questions.&amp;quot;&#34;}], &#34;tests/test_conversation_extractor.py::test_extract_context_no_matches&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_conversation_extractor.py::test_extract_context_no_matches&#34;, &#34;duration&#34;: &#34;0 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_conversation_extractor.py::test_extract_context_no_matches&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;0 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stdout setup -----------------------------\n\n================================================================================\nRUNNING TEST: test_extract_context_no_matches\n--------------------------------------------------------------------------------\n\n------------------------------- Test Description -------------------------------\nTest extracting context with no matches.\n------------------------------- Test Parameters --------------------------------\nsample_conversation: &amp;quot;USER: Hello there\\nASSISTANT: Hi! How can I help you today?\\nUSER: I&amp;#x27;m looking for information about Python\\nASSISTANT: Python is a versatile programming language.\\nIt&amp;#x27;s great for beginners and experts alike.\\nUSER: What about data analysis?\\nASSISTANT: Python is excellent for data analysis.\\nLibraries like pandas and numpy are very popular.\\nUSER: Thanks for the information\\nASSISTANT: You&amp;#x27;re welcome! Let me know if you have more questions.&amp;quot;&#34;}], &#34;tests/test_conversation_extractor.py::test_extract_context_case_insensitive&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_conversation_extractor.py::test_extract_context_case_insensitive&#34;, &#34;duration&#34;: &#34;0 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_conversation_extractor.py::test_extract_context_case_insensitive&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;0 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stdout setup -----------------------------\n\n================================================================================\nRUNNING TEST: test_extract_context_case_insensitive\n--------------------------------------------------------------------------------\n\n------------------------------- Test Description -------------------------------\nTest that keyword matching is case insensitive.\n------------------------------- Test Parameters --------------------------------\nsample_conversation: &amp;quot;USER: Hello there\\nASSISTANT: Hi! How can I help you today?\\nUSER: I&amp;#x27;m looking for information about Python\\nASSISTANT: Python is a versatile programming language.\\nIt&amp;#x27;s great for beginners and experts alike.\\nUSER: What about data analysis?\\nASSISTANT: Python is excellent for data analysis.\\nLibraries like pandas and numpy are very popular.\\nUSER: Thanks for the information\\nASSISTANT: You&amp;#x27;re welcome! Let me know if you have more questions.&amp;quot;&#34;}], &#34;tests/test_conversation_extractor.py::test_extract_context_boundaries&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_conversation_extractor.py::test_extract_context_boundaries&#34;, &#34;duration&#34;: &#34;1 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_conversation_extractor.py::test_extract_context_boundaries&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;1 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stdout setup -----------------------------\n\n================================================================================\nRUNNING TEST: test_extract_context_boundaries\n--------------------------------------------------------------------------------\n\n------------------------------- Test Description -------------------------------\nTest context extraction at the boundaries of the text.\n------------------------------- Test Parameters --------------------------------\nsample_conversation: &amp;quot;USER: Hello there\\nASSISTANT: Hi! How can I help you today?\\nUSER: I&amp;#x27;m looking for information about Python\\nASSISTANT: Python is a versatile programming language.\\nIt&amp;#x27;s great for beginners and experts alike.\\nUSER: What about data analysis?\\nASSISTANT: Python is excellent for data analysis.\\nLibraries like pandas and numpy are very popular.\\nUSER: Thanks for the information\\nASSISTANT: You&amp;#x27;re welcome! Let me know if you have more questions.&amp;quot;&#34;}], &#34;tests/test_conversation_extractor.py::test_extract_context_varying_context_size&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_conversation_extractor.py::test_extract_context_varying_context_size&#34;, &#34;duration&#34;: &#34;1 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_conversation_extractor.py::test_extract_context_varying_context_size&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;1 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stdout setup -----------------------------\n\n================================================================================\nRUNNING TEST: test_extract_context_varying_context_size\n--------------------------------------------------------------------------------\n\n------------------------------- Test Description -------------------------------\nTest different context sizes.\n------------------------------- Test Parameters --------------------------------\nsample_conversation: &amp;quot;USER: Hello there\\nASSISTANT: Hi! How can I help you today?\\nUSER: I&amp;#x27;m looking for information about Python\\nASSISTANT: Python is a versatile programming language.\\nIt&amp;#x27;s great for beginners and experts alike.\\nUSER: What about data analysis?\\nASSISTANT: Python is excellent for data analysis.\\nLibraries like pandas and numpy are very popular.\\nUSER: Thanks for the information\\nASSISTANT: You&amp;#x27;re welcome! Let me know if you have more questions.&amp;quot;&#34;}], &#34;tests/test_conversation_extractor.py::test_real_file_integration&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_conversation_extractor.py::test_real_file_integration&#34;, &#34;duration&#34;: &#34;2 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_conversation_extractor.py::test_real_file_integration&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;2 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stdout setup -----------------------------\n\n================================================================================\nRUNNING TEST: test_real_file_integration\n--------------------------------------------------------------------------------\n\n------------------------------- Test Description -------------------------------\nIntegration test using a real file.\n------------------------------- Test Parameters --------------------------------\ntmp_path_factory: TempPathFactory(_given_basetemp=None, _trace=&amp;lt;pluggy._tracing.TagTracerSub object at 0x000001FC82712C40&amp;gt;, _basetemp=WindowsPath(&amp;#x27;C:/Users/washy/AppData/Local/Temp/pytest-of-washy/pytest-19&amp;#x27;), _retention_count=3, _retention_policy=&amp;#x27;all&amp;#x27;)\nsample_file: WindowsPath(&amp;#x27;C:/Users/washy/AppData/Local/Temp/pytest-of-washy/pytest-19/test_real_file_integration0/test_conversation.txt&amp;#x27;)\ntmp_path: WindowsPath(&amp;#x27;C:/Users/washy/AppData/Local/Temp/pytest-of-washy/pytest-19/test_real_file_integration0&amp;#x27;)\nsample_conversation: &amp;quot;USER: Hello there\\nASSISTANT: Hi! How can I help you today?\\nUSER: I&amp;#x27;m looking for information about Python\\nASSISTANT: Python is a versatile programming language.\\nIt&amp;#x27;s great for beginners and experts alike.\\nUSER: What about data analysis?\\nASSISTANT: Python is excellent for data analysis.\\nLibraries like pandas and numpy are very popular.\\nUSER: Thanks for the information\\nASSISTANT: You&amp;#x27;re welcome! Let me know if you have more questions.&amp;quot;&#34;}], &#34;tests/test_conversation_extractor_verbose.py::test_load_conversation&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_conversation_extractor_verbose.py::test_load_conversation&#34;, &#34;duration&#34;: &#34;5 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_conversation_extractor_verbose.py::test_load_conversation&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;5 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stdout setup -----------------------------\n\n================================================================================\nRUNNING TEST: test_load_conversation\n--------------------------------------------------------------------------------\n\n---------------------------- Captured stderr setup -----------------------------\nINFO: Creating sample conversation fixture\nINFO: Creating temporary sample file in C:\\Users\\washy\\AppData\\Local\\Temp\\pytest-of-washy\\pytest-19\\test_load_conversation1\n\n------------------------------ Captured log setup ------------------------------\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:28 Creating sample conversation fixture\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:44 Creating temporary sample file in C:\\Users\\washy\\AppData\\Local\\Temp\\pytest-of-washy\\pytest-19\\test_load_conversation1\n\n----------------------------- Captured stderr call -----------------------------\nINFO: Testing loading conversation from file: C:\\Users\\washy\\AppData\\Local\\Temp\\pytest-of-washy\\pytest-19\\test_load_conversation1\\test_conversation.txt\nINFO: Checking content is not None\nINFO: Checking content is not empty (length: 436)\nINFO: Checking content contains expected keywords\nINFO: \u2705 Successfully loaded conversation from file\n\n------------------------------ Captured log call -------------------------------\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:58 Testing loading conversation from file: C:\\Users\\washy\\AppData\\Local\\Temp\\pytest-of-washy\\pytest-19\\test_load_conversation1\\test_conversation.txt\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:64 Checking content is not None\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:67 Checking content is not empty (length: 436)\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:70 Checking content contains expected keywords\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:74 \u2705 Successfully loaded conversation from file\n\n\n------------------------------- Test Description -------------------------------\nFEATURE: Loading conversation from file\n\nTest that we can successfully load a conversation from a file and\nthe content is correctly read.\n------------------------------- Test Parameters --------------------------------\ntmp_path_factory: TempPathFactory(_given_basetemp=None, _trace=&amp;lt;pluggy._tracing.TagTracerSub object at 0x000001FC82712C40&amp;gt;, _basetemp=WindowsPath(&amp;#x27;C:/Users/washy/AppData/Local/Temp/pytest-of-washy/pytest-19&amp;#x27;), _retention_count=3, _retention_policy=&amp;#x27;all&amp;#x27;)\nsample_file: WindowsPath(&amp;#x27;C:/Users/washy/AppData/Local/Temp/pytest-of-washy/pytest-19/test_load_conversation1/test_conversation.txt&amp;#x27;)\ntmp_path: WindowsPath(&amp;#x27;C:/Users/washy/AppData/Local/Temp/pytest-of-washy/pytest-19/test_load_conversation1&amp;#x27;)\nsample_conversation: &amp;quot;USER: Hello there\\nASSISTANT: Hi! How can I help you today?\\nUSER: I&amp;#x27;m looking for information about Python\\nASSISTANT: Python is a versatile programming language.\\nIt&amp;#x27;s great for beginners and experts alike.\\nUSER: What about data analysis?\\nASSISTANT: Python is excellent for data analysis.\\nLibraries like pandas and numpy are very popular.\\nUSER: Thanks for the information\\nASSISTANT: You&amp;#x27;re welcome! Let me know if you have more questions.&amp;quot;&#34;}], &#34;tests/test_conversation_extractor_verbose.py::test_load_conversation_nonexistent_file&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_conversation_extractor_verbose.py::test_load_conversation_nonexistent_file&#34;, &#34;duration&#34;: &#34;1 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_conversation_extractor_verbose.py::test_load_conversation_nonexistent_file&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;1 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stdout setup -----------------------------\n\n================================================================================\nRUNNING TEST: test_load_conversation_nonexistent_file\n--------------------------------------------------------------------------------\n\n----------------------------- Captured stdout call -----------------------------\nError loading file: [Errno 2] No such file or directory: &amp;#x27;nonexistent_file.txt&amp;#x27;\n\n----------------------------- Captured stderr call -----------------------------\nINFO: Testing loading from nonexistent file: nonexistent_file.txt\nINFO: Checking that an empty string is returned\nINFO: \u2705 Successfully handled nonexistent file\n\n------------------------------ Captured log call -------------------------------\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:85 Testing loading from nonexistent file: nonexistent_file.txt\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:91 Checking that an empty string is returned\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:94 \u2705 Successfully handled nonexistent file\n\n\n------------------------------- Test Description -------------------------------\nFEATURE: Error handling for nonexistent files\n\nTest that attempting to load a nonexistent file returns an empty string\ninstead of raising an exception.&#34;}], &#34;tests/test_conversation_extractor_verbose.py::test_extract_context_single_keyword&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_conversation_extractor_verbose.py::test_extract_context_single_keyword&#34;, &#34;duration&#34;: &#34;2 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_conversation_extractor_verbose.py::test_extract_context_single_keyword&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;2 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stdout setup -----------------------------\n\n================================================================================\nRUNNING TEST: test_extract_context_single_keyword\n--------------------------------------------------------------------------------\n\n---------------------------- Captured stderr setup -----------------------------\nINFO: Creating sample conversation fixture\n\n------------------------------ Captured log setup ------------------------------\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:28 Creating sample conversation fixture\n\n----------------------------- Captured stderr call -----------------------------\nINFO: Testing context extraction for single keyword: &amp;#x27;Python&amp;#x27; with 1 context lines\nINFO: Checking that the keyword was found\nINFO: Found 3 occurrences of &amp;#x27;Python&amp;#x27;\nINFO: First matched line: &amp;#x27;USER: I&amp;#x27;m looking for information about Python&amp;#x27;\nINFO: Context has 3 lines\nINFO: \u2705 Successfully extracted context for single keyword\n\n------------------------------ Captured log call -------------------------------\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:106 Testing context extraction for single keyword: &amp;#x27;Python&amp;#x27; with 1 context lines\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:112 Checking that the keyword was found\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:117 Found 3 occurrences of &amp;#x27;Python&amp;#x27;\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:123 First matched line: &amp;#x27;USER: I&amp;#x27;m looking for information about Python&amp;#x27;\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:127 Context has 3 lines\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:130 \u2705 Successfully extracted context for single keyword\n\n\n------------------------------- Test Description -------------------------------\nFEATURE: Extracting context for a single keyword\n\nTest that we can extract context around a single keyword with the\ncorrect number of context lines.\n------------------------------- Test Parameters --------------------------------\nsample_conversation: &amp;quot;USER: Hello there\\nASSISTANT: Hi! How can I help you today?\\nUSER: I&amp;#x27;m looking for information about Python\\nASSISTANT: Python is a versatile programming language.\\nIt&amp;#x27;s great for beginners and experts alike.\\nUSER: What about data analysis?\\nASSISTANT: Python is excellent for data analysis.\\nLibraries like pandas and numpy are very popular.\\nUSER: Thanks for the information\\nASSISTANT: You&amp;#x27;re welcome! Let me know if you have more questions.&amp;quot;&#34;}], &#34;tests/test_conversation_extractor_verbose.py::test_extract_context_multiple_keywords&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_conversation_extractor_verbose.py::test_extract_context_multiple_keywords&#34;, &#34;duration&#34;: &#34;2 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_conversation_extractor_verbose.py::test_extract_context_multiple_keywords&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;2 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stdout setup -----------------------------\n\n================================================================================\nRUNNING TEST: test_extract_context_multiple_keywords\n--------------------------------------------------------------------------------\n\n---------------------------- Captured stderr setup -----------------------------\nINFO: Creating sample conversation fixture\n\n------------------------------ Captured log setup ------------------------------\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:28 Creating sample conversation fixture\n\n----------------------------- Captured stderr call -----------------------------\nINFO: Testing context extraction for multiple keywords: [&amp;#x27;Python&amp;#x27;, &amp;#x27;pandas&amp;#x27;] with 1 context lines\nINFO: Checking that keyword &amp;#x27;Python&amp;#x27; was found\nINFO: Checking that keyword &amp;#x27;pandas&amp;#x27; was found\nINFO: Pandas matched line: &amp;#x27;Libraries like pandas and numpy are very popular.&amp;#x27;\nINFO: Context has 3 lines\nINFO: \u2705 Successfully extracted context for multiple keywords\n\n------------------------------ Captured log call -------------------------------\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:141 Testing context extraction for multiple keywords: [&amp;#x27;Python&amp;#x27;, &amp;#x27;pandas&amp;#x27;] with 1 context lines\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:148 Checking that keyword &amp;#x27;Python&amp;#x27; was found\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:148 Checking that keyword &amp;#x27;pandas&amp;#x27; was found\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:154 Pandas matched line: &amp;#x27;Libraries like pandas and numpy are very popular.&amp;#x27;\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:159 Context has 3 lines\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:162 \u2705 Successfully extracted context for multiple keywords\n\n\n------------------------------- Test Description -------------------------------\nFEATURE: Extracting context for multiple keywords\n\nTest that we can extract context around multiple keywords simultaneously.\n------------------------------- Test Parameters --------------------------------\nsample_conversation: &amp;quot;USER: Hello there\\nASSISTANT: Hi! How can I help you today?\\nUSER: I&amp;#x27;m looking for information about Python\\nASSISTANT: Python is a versatile programming language.\\nIt&amp;#x27;s great for beginners and experts alike.\\nUSER: What about data analysis?\\nASSISTANT: Python is excellent for data analysis.\\nLibraries like pandas and numpy are very popular.\\nUSER: Thanks for the information\\nASSISTANT: You&amp;#x27;re welcome! Let me know if you have more questions.&amp;quot;&#34;}], &#34;tests/test_conversation_extractor_verbose.py::test_extract_context_no_matches&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_conversation_extractor_verbose.py::test_extract_context_no_matches&#34;, &#34;duration&#34;: &#34;2 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_conversation_extractor_verbose.py::test_extract_context_no_matches&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;2 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stdout setup -----------------------------\n\n================================================================================\nRUNNING TEST: test_extract_context_no_matches\n--------------------------------------------------------------------------------\n\n---------------------------- Captured stderr setup -----------------------------\nINFO: Creating sample conversation fixture\n\n------------------------------ Captured log setup ------------------------------\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:28 Creating sample conversation fixture\n\n----------------------------- Captured stderr call -----------------------------\nINFO: Testing context extraction for non-existent keyword: &amp;#x27;JavaScript&amp;#x27;\nINFO: Checking that no results were found\nINFO: \u2705 Successfully handled no matches case\n\n------------------------------ Captured log call -------------------------------\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:172 Testing context extraction for non-existent keyword: &amp;#x27;JavaScript&amp;#x27;\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:178 Checking that no results were found\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:181 \u2705 Successfully handled no matches case\n\n\n------------------------------- Test Description -------------------------------\nFEATURE: Handling no matches\n\nTest that searching for keywords that don&amp;#x27;t exist returns an empty result.\n------------------------------- Test Parameters --------------------------------\nsample_conversation: &amp;quot;USER: Hello there\\nASSISTANT: Hi! How can I help you today?\\nUSER: I&amp;#x27;m looking for information about Python\\nASSISTANT: Python is a versatile programming language.\\nIt&amp;#x27;s great for beginners and experts alike.\\nUSER: What about data analysis?\\nASSISTANT: Python is excellent for data analysis.\\nLibraries like pandas and numpy are very popular.\\nUSER: Thanks for the information\\nASSISTANT: You&amp;#x27;re welcome! Let me know if you have more questions.&amp;quot;&#34;}], &#34;tests/test_conversation_extractor_verbose.py::test_extract_context_case_insensitive&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_conversation_extractor_verbose.py::test_extract_context_case_insensitive&#34;, &#34;duration&#34;: &#34;2 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_conversation_extractor_verbose.py::test_extract_context_case_insensitive&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;2 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stdout setup -----------------------------\n\n================================================================================\nRUNNING TEST: test_extract_context_case_insensitive\n--------------------------------------------------------------------------------\n\n---------------------------- Captured stderr setup -----------------------------\nINFO: Creating sample conversation fixture\n\n------------------------------ Captured log setup ------------------------------\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:28 Creating sample conversation fixture\n\n----------------------------- Captured stderr call -----------------------------\nINFO: Testing case-insensitive matching for keyword: &amp;#x27;python&amp;#x27;\nINFO: Checking that the keyword was found despite case difference\nINFO: Found 3 occurrences of &amp;#x27;python&amp;#x27;\nINFO: \u2705 Successfully performed case-insensitive matching\n\n------------------------------ Captured log call -------------------------------\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:191 Testing case-insensitive matching for keyword: &amp;#x27;python&amp;#x27;\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:197 Checking that the keyword was found despite case difference\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:202 Found 3 occurrences of &amp;#x27;python&amp;#x27;\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:205 \u2705 Successfully performed case-insensitive matching\n\n\n------------------------------- Test Description -------------------------------\nFEATURE: Case-insensitive matching\n\nTest that keyword matching is case-insensitive.\n------------------------------- Test Parameters --------------------------------\nsample_conversation: &amp;quot;USER: Hello there\\nASSISTANT: Hi! How can I help you today?\\nUSER: I&amp;#x27;m looking for information about Python\\nASSISTANT: Python is a versatile programming language.\\nIt&amp;#x27;s great for beginners and experts alike.\\nUSER: What about data analysis?\\nASSISTANT: Python is excellent for data analysis.\\nLibraries like pandas and numpy are very popular.\\nUSER: Thanks for the information\\nASSISTANT: You&amp;#x27;re welcome! Let me know if you have more questions.&amp;quot;&#34;}], &#34;tests/test_conversation_extractor_verbose.py::test_extract_context_boundaries&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_conversation_extractor_verbose.py::test_extract_context_boundaries&#34;, &#34;duration&#34;: &#34;2 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_conversation_extractor_verbose.py::test_extract_context_boundaries&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;2 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stdout setup -----------------------------\n\n================================================================================\nRUNNING TEST: test_extract_context_boundaries\n--------------------------------------------------------------------------------\n\n---------------------------- Captured stderr setup -----------------------------\nINFO: Creating sample conversation fixture\n\n------------------------------ Captured log setup ------------------------------\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:28 Creating sample conversation fixture\n\n----------------------------- Captured stderr call -----------------------------\nINFO: Testing context extraction at the beginning of text with keyword: &amp;#x27;Hello&amp;#x27;\nINFO: Context at beginning has 3 lines (should be &amp;lt;= 3)\nINFO: Testing context extraction at the end of text with keyword: &amp;#x27;more questions&amp;#x27;\nINFO: Context at end has 3 lines (should be &amp;lt;= 3)\nINFO: \u2705 Successfully handled text boundaries\n\n------------------------------ Captured log call -------------------------------\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:217 Testing context extraction at the beginning of text with keyword: &amp;#x27;Hello&amp;#x27;\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:228 Context at beginning has 3 lines (should be &amp;lt;= 3)\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:233 Testing context extraction at the end of text with keyword: &amp;#x27;more questions&amp;#x27;\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:244 Context at end has 3 lines (should be &amp;lt;= 3)\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:247 \u2705 Successfully handled text boundaries\n\n\n------------------------------- Test Description -------------------------------\nFEATURE: Handling text boundaries\n\nTest that context extraction works correctly at the beginning and end of text.\n------------------------------- Test Parameters --------------------------------\nsample_conversation: &amp;quot;USER: Hello there\\nASSISTANT: Hi! How can I help you today?\\nUSER: I&amp;#x27;m looking for information about Python\\nASSISTANT: Python is a versatile programming language.\\nIt&amp;#x27;s great for beginners and experts alike.\\nUSER: What about data analysis?\\nASSISTANT: Python is excellent for data analysis.\\nLibraries like pandas and numpy are very popular.\\nUSER: Thanks for the information\\nASSISTANT: You&amp;#x27;re welcome! Let me know if you have more questions.&amp;quot;&#34;}], &#34;tests/test_conversation_extractor_verbose.py::test_extract_context_varying_context_size&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_conversation_extractor_verbose.py::test_extract_context_varying_context_size&#34;, &#34;duration&#34;: &#34;2 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_conversation_extractor_verbose.py::test_extract_context_varying_context_size&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;2 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stdout setup -----------------------------\n\n================================================================================\nRUNNING TEST: test_extract_context_varying_context_size\n--------------------------------------------------------------------------------\n\n---------------------------- Captured stderr setup -----------------------------\nINFO: Creating sample conversation fixture\n\n------------------------------ Captured log setup ------------------------------\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:28 Creating sample conversation fixture\n\n----------------------------- Captured stderr call -----------------------------\nINFO: Testing different context sizes for keyword: &amp;#x27;Python&amp;#x27;\nINFO: Testing with context_lines=0 (no context)\nINFO: Context size 0 has 1 lines\nINFO: Testing with context_lines=1 (small context)\nINFO: Context size 1 has 3 lines\nINFO: Testing with context_lines=3 (larger context)\nINFO: Context size 3 has 6 lines\nINFO: \u2705 Successfully handled different context sizes\n\n------------------------------ Captured log call -------------------------------\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:257 Testing different context sizes for keyword: &amp;#x27;Python&amp;#x27;\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:260 Testing with context_lines=0 (no context)\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:264 Context size 0 has 1 lines\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:268 Testing with context_lines=1 (small context)\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:271 Context size 1 has 3 lines\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:275 Testing with context_lines=3 (larger context)\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:278 Context size 3 has 6 lines\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:281 \u2705 Successfully handled different context sizes\n\n\n------------------------------- Test Description -------------------------------\nFEATURE: Different context sizes\n\nTest that different context sizes work correctly.\n------------------------------- Test Parameters --------------------------------\nsample_conversation: &amp;quot;USER: Hello there\\nASSISTANT: Hi! How can I help you today?\\nUSER: I&amp;#x27;m looking for information about Python\\nASSISTANT: Python is a versatile programming language.\\nIt&amp;#x27;s great for beginners and experts alike.\\nUSER: What about data analysis?\\nASSISTANT: Python is excellent for data analysis.\\nLibraries like pandas and numpy are very popular.\\nUSER: Thanks for the information\\nASSISTANT: You&amp;#x27;re welcome! Let me know if you have more questions.&amp;quot;&#34;}], &#34;tests/test_conversation_extractor_verbose.py::test_real_file_integration&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_conversation_extractor_verbose.py::test_real_file_integration&#34;, &#34;duration&#34;: &#34;5 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_conversation_extractor_verbose.py::test_real_file_integration&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;5 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stdout setup -----------------------------\n\n================================================================================\nRUNNING TEST: test_real_file_integration\n--------------------------------------------------------------------------------\n\n---------------------------- Captured stderr setup -----------------------------\nINFO: Creating sample conversation fixture\nINFO: Creating temporary sample file in C:\\Users\\washy\\AppData\\Local\\Temp\\pytest-of-washy\\pytest-19\\test_real_file_integration1\n\n------------------------------ Captured log setup ------------------------------\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:28 Creating sample conversation fixture\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:44 Creating temporary sample file in C:\\Users\\washy\\AppData\\Local\\Temp\\pytest-of-washy\\pytest-19\\test_real_file_integration1\n\n----------------------------- Captured stderr call -----------------------------\nINFO: Testing full workflow: load file and extract context for keywords: [&amp;#x27;Python&amp;#x27;, &amp;#x27;data&amp;#x27;]\nINFO: Loading conversation from C:\\Users\\washy\\AppData\\Local\\Temp\\pytest-of-washy\\pytest-19\\test_real_file_integration1\\test_conversation.txt\nINFO: Extracting context with 2 context lines\nINFO: Checking that keyword &amp;#x27;Python&amp;#x27; was found\nINFO: Checking that keyword &amp;#x27;data&amp;#x27; was found\nINFO: Found 3 occurrences of &amp;#x27;Python&amp;#x27;\nINFO: Found 2 occurrences of &amp;#x27;data&amp;#x27;\nINFO: \u2705 Successfully completed end-to-end integration test\n\n------------------------------ Captured log call -------------------------------\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:292 Testing full workflow: load file and extract context for keywords: [&amp;#x27;Python&amp;#x27;, &amp;#x27;data&amp;#x27;]\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:295 Loading conversation from C:\\Users\\washy\\AppData\\Local\\Temp\\pytest-of-washy\\pytest-19\\test_real_file_integration1\\test_conversation.txt\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:298 Extracting context with 2 context lines\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:303 Checking that keyword &amp;#x27;Python&amp;#x27; was found\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:303 Checking that keyword &amp;#x27;data&amp;#x27; was found\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:309 Found 3 occurrences of &amp;#x27;Python&amp;#x27;\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:310 Found 2 occurrences of &amp;#x27;data&amp;#x27;\nINFO     tests.test_conversation_extractor_verbose:test_conversation_extractor_verbose.py:315 \u2705 Successfully completed end-to-end integration test\n\n\n------------------------------- Test Description -------------------------------\nFEATURE: End-to-end integration\n\nTest the full workflow from loading a file to extracting context.\n------------------------------- Test Parameters --------------------------------\ntmp_path_factory: TempPathFactory(_given_basetemp=None, _trace=&amp;lt;pluggy._tracing.TagTracerSub object at 0x000001FC82712C40&amp;gt;, _basetemp=WindowsPath(&amp;#x27;C:/Users/washy/AppData/Local/Temp/pytest-of-washy/pytest-19&amp;#x27;), _retention_count=3, _retention_policy=&amp;#x27;all&amp;#x27;)\nsample_file: WindowsPath(&amp;#x27;C:/Users/washy/AppData/Local/Temp/pytest-of-washy/pytest-19/test_real_file_integration1/test_conversation.txt&amp;#x27;)\ntmp_path: WindowsPath(&amp;#x27;C:/Users/washy/AppData/Local/Temp/pytest-of-washy/pytest-19/test_real_file_integration1&amp;#x27;)\nsample_conversation: &amp;quot;USER: Hello there\\nASSISTANT: Hi! How can I help you today?\\nUSER: I&amp;#x27;m looking for information about Python\\nASSISTANT: Python is a versatile programming language.\\nIt&amp;#x27;s great for beginners and experts alike.\\nUSER: What about data analysis?\\nASSISTANT: Python is excellent for data analysis.\\nLibraries like pandas and numpy are very popular.\\nUSER: Thanks for the information\\nASSISTANT: You&amp;#x27;re welcome! Let me know if you have more questions.&amp;quot;&#34;}], &#34;tests/test_dynamic_keywords.py::test_generate_dynamic_keywords_basic&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_dynamic_keywords.py::test_generate_dynamic_keywords_basic&#34;, &#34;duration&#34;: &#34;213 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_dynamic_keywords.py::test_generate_dynamic_keywords_basic&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;213 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stdout setup -----------------------------\n\n================================================================================\nRUNNING TEST: test_generate_dynamic_keywords_basic\n--------------------------------------------------------------------------------\n\n----------------------------- Captured stdout call -----------------------------\n\n=== Testing basic dynamic keyword generation ===\nSample conversation: 678 characters\nGenerating dynamic keywords...\nGenerated 17 keywords:\ndictionary, ASSISTANT, project, working, handle, exists, first, think, Flask, check...\n\u2713 Generated at least one keyword\nChecking for &amp;#x27;dictionary&amp;#x27; keyword: Found\n\u2713 Found &amp;#x27;dictionary&amp;#x27; as a keyword\nChecking for key-related keywords: Found\n\u2713 Found key-related keywords\nChecking keyword sorting by length...\n\u2713 Keywords are properly sorted by length\n\n------------------------------- Test Description -------------------------------\nFEATURE: Basic dynamic keyword generation\n\nTest that we can extract keywords from a conversation dynamically.\n\nVerifies that:\n- Keywords are generated from conversation text\n- Expected keywords like &amp;#x27;dictionary&amp;#x27; are identified\n- Keywords are properly sorted by length&#34;}], &#34;tests/test_dynamic_keywords.py::test_generate_dynamic_keywords_with_existing&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_dynamic_keywords.py::test_generate_dynamic_keywords_with_existing&#34;, &#34;duration&#34;: &#34;153 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_dynamic_keywords.py::test_generate_dynamic_keywords_with_existing&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;153 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stdout setup -----------------------------\n\n================================================================================\nRUNNING TEST: test_generate_dynamic_keywords_with_existing\n--------------------------------------------------------------------------------\n\n------------------------------- Test Description -------------------------------\nFEATURE: Dynamic keyword generation with existing keywords\n\nTest that dynamic keyword generation respects existing keywords.&#34;}], &#34;tests/test_dynamic_keywords.py::test_keyword_tracker&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_dynamic_keywords.py::test_keyword_tracker&#34;, &#34;duration&#34;: &#34;3 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_dynamic_keywords.py::test_keyword_tracker&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;3 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stdout setup -----------------------------\n\n================================================================================\nRUNNING TEST: test_keyword_tracker\n--------------------------------------------------------------------------------\n\n------------------------------- Test Description -------------------------------\nFEATURE: Keyword importance tracking\n\nTest that the KeywordTracker can track keyword importance over time.&#34;}], &#34;tests/test_dynamic_keywords.py::test_extract_topics_with_dynamic_keywords&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_dynamic_keywords.py::test_extract_topics_with_dynamic_keywords&#34;, &#34;duration&#34;: &#34;235 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_dynamic_keywords.py::test_extract_topics_with_dynamic_keywords&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;235 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stdout setup -----------------------------\n\n================================================================================\nRUNNING TEST: test_extract_topics_with_dynamic_keywords\n--------------------------------------------------------------------------------\n\n------------------------------- Test Description -------------------------------\nFEATURE: Topic extraction with dynamic keywords\n\nTest that extract_topics can use dynamic keyword generation.&#34;}], &#34;tests/test_dynamic_keywords.py::test_extract_topics_without_dynamic_keywords&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_dynamic_keywords.py::test_extract_topics_without_dynamic_keywords&#34;, &#34;duration&#34;: &#34;1 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_dynamic_keywords.py::test_extract_topics_without_dynamic_keywords&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;1 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stdout setup -----------------------------\n\n================================================================================\nRUNNING TEST: test_extract_topics_without_dynamic_keywords\n--------------------------------------------------------------------------------\n\n------------------------------- Test Description -------------------------------\nFEATURE: Topic extraction without dynamic keywords\n\nTest that extract_topics works correctly with dynamic keywords disabled.&#34;}], &#34;tests/test_dynamic_keywords.py::test_dynamic_keywords_with_real_conversation&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_dynamic_keywords.py::test_dynamic_keywords_with_real_conversation&#34;, &#34;duration&#34;: &#34;510 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_dynamic_keywords.py::test_dynamic_keywords_with_real_conversation&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;510 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stdout setup -----------------------------\n\n================================================================================\nRUNNING TEST: test_dynamic_keywords_with_real_conversation\n--------------------------------------------------------------------------------\n\n----------------------------- Captured stdout call -----------------------------\n\nDynamic keywords generated from real conversation:\nDeveloper, existing, Removing, multiple, options, several, Remove, Update, return, person, Thanks, remind, values, value, items, email, large, files, pair\n\nDynamic topic matches:\n- Developer: person.update({&amp;quot;age&amp;quot;: 32, &amp;quot;job&amp;quot;: &amp;quot;Developer&amp;quot;})...\n- Removing: # Removing items...\n- multiple: # Update multiple values at once...\n- existing: person[&amp;quot;age&amp;quot;] = 31  # Update existing value...\n- options: BUDDY: For debugging in Python, you have several g...\n\n------------------------------- Test Description -------------------------------\nFEATURE: Dynamic keyword generation with real conversation\n\nTest dynamic keyword generation with a real conversation file.&#34;}], &#34;tests/test_topic_extraction.py::test_extract_topics_from_coding_buddy&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_topic_extraction.py::test_extract_topics_from_coding_buddy&#34;, &#34;duration&#34;: &#34;266 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_topic_extraction.py::test_extract_topics_from_coding_buddy&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;266 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stdout setup -----------------------------\n\n================================================================================\nRUNNING TEST: test_extract_topics_from_coding_buddy\n--------------------------------------------------------------------------------\n\n----------------------------- Captured stderr call -----------------------------\nINFO: Testing topic extraction from coding buddy conversation\nINFO: Checking that &amp;#x27;Python Syntax&amp;#x27; is one of the categories\nINFO: Category &amp;#x27;Python Syntax&amp;#x27; has 45 matches\nINFO: Checking that &amp;#x27;Web Development&amp;#x27; is one of the categories\nINFO: Category &amp;#x27;Web Development&amp;#x27; has 22 matches\nINFO: Checking that &amp;#x27;Data Processing&amp;#x27; is one of the categories\nINFO: Category &amp;#x27;Data Processing&amp;#x27; has 27 matches\nINFO: Checking that &amp;#x27;ADHD &amp;amp; Productivity&amp;#x27; is one of the categories\nINFO: Category &amp;#x27;ADHD &amp;amp; Productivity&amp;#x27; has 10 matches\nINFO: Checking that &amp;#x27;Best Practices&amp;#x27; is one of the categories\nINFO: Category &amp;#x27;Best Practices&amp;#x27; has 19 matches\nINFO: Checking that &amp;#x27;Debugging&amp;#x27; is one of the categories\nINFO: Category &amp;#x27;Debugging&amp;#x27; has 19 matches\nINFO: \u2705 Successfully extracted topics from coding buddy conversation\n\n------------------------------ Captured log call -------------------------------\nINFO     tests.test_topic_extraction:test_topic_extraction.py:49 Testing topic extraction from coding buddy conversation\nINFO     tests.test_topic_extraction:test_topic_extraction.py:65 Checking that &amp;#x27;Python Syntax&amp;#x27; is one of the categories\nINFO     tests.test_topic_extraction:test_topic_extraction.py:70 Category &amp;#x27;Python Syntax&amp;#x27; has 45 matches\nINFO     tests.test_topic_extraction:test_topic_extraction.py:65 Checking that &amp;#x27;Web Development&amp;#x27; is one of the categories\nINFO     tests.test_topic_extraction:test_topic_extraction.py:70 Category &amp;#x27;Web Development&amp;#x27; has 22 matches\nINFO     tests.test_topic_extraction:test_topic_extraction.py:65 Checking that &amp;#x27;Data Processing&amp;#x27; is one of the categories\nINFO     tests.test_topic_extraction:test_topic_extraction.py:70 Category &amp;#x27;Data Processing&amp;#x27; has 27 matches\nINFO     tests.test_topic_extraction:test_topic_extraction.py:65 Checking that &amp;#x27;ADHD &amp;amp; Productivity&amp;#x27; is one of the categories\nINFO     tests.test_topic_extraction:test_topic_extraction.py:70 Category &amp;#x27;ADHD &amp;amp; Productivity&amp;#x27; has 10 matches\nINFO     tests.test_topic_extraction:test_topic_extraction.py:65 Checking that &amp;#x27;Best Practices&amp;#x27; is one of the categories\nINFO     tests.test_topic_extraction:test_topic_extraction.py:70 Category &amp;#x27;Best Practices&amp;#x27; has 19 matches\nINFO     tests.test_topic_extraction:test_topic_extraction.py:65 Checking that &amp;#x27;Debugging&amp;#x27; is one of the categories\nINFO     tests.test_topic_extraction:test_topic_extraction.py:70 Category &amp;#x27;Debugging&amp;#x27; has 19 matches\nINFO     tests.test_topic_extraction:test_topic_extraction.py:73 \u2705 Successfully extracted topics from coding buddy conversation\n\n\n------------------------------- Test Description -------------------------------\nFEATURE: Topic extraction from natural coding buddy conversation\n\nTest that we can extract and categorize topics from a natural conversation\nthat mixes technical questions, ADHD challenges, and best practices.\n------------------------------- Test Parameters --------------------------------\ncoding_buddy_conversation: &amp;#x27;CONVERSATION WITH CODING BUDDY - APRIL 20, 2025\\n\\nME: Hey, I\\&amp;#x27;m trying to build this Flask app that processes CSV files, but I keep getting distracted. My ADHD is really acting up today.\\n\\nBUDDY: That happens! Have you tried the Pomodoro technique? 25 minutes of focus, then a 5-minute break.\\n\\nME: Yeah, I should do that. Anyway, I\\&amp;#x27;m stuck on how to handle file uploads in Flask. Do you know the best way to do that?\\n\\nBUDDY: Sure, file uploads in Flask are pretty straightforward. Here\\&amp;#x27;s a basic pattern:\\n\\n```python\\nimport os\\nfrom flask import Flask, request, render_template, redirect, url_for\\nimport pandas as pd\\n\\napp = Flask(__name__)\\napp.config[\\&amp;#x27;UPLOAD_FOLDER\\&amp;#x27;] = \\&amp;#x27;uploads\\&amp;#x27;\\napp.config[\\&amp;#x27;ALLOWED_EXTENSIONS\\&amp;#x27;] = {\\&amp;#x27;csv\\&amp;#x27;}\\n\\n# Ensure upload directory exists\\nos.makedirs(app.config[\\&amp;#x27;UPLOAD_FOLDER\\&amp;#x27;], exist_ok=True)\\n\\ndef allowed_file(filename):\\n    return \\&amp;#x27;.\\&amp;#x27; in filename and filename.rsplit(\\&amp;#x27;.\\&amp;#x27;, 1)[1].lower() in app.config[\\&amp;#x27;ALLOWED_EXTENSIONS\\&amp;#x27;]\\n\\n@app.route(\\&amp;#x27;/\\&amp;#x27;, methods=[\\&amp;#x27;GET\\&amp;#x27;, \\&amp;#x27;POST\\&amp;#x27;])\\ndef index():\\n    if request.method == \\&amp;#x27;POST\\&amp;#x27;:\\n        # Check if the post request has the file part\\n        if \\&amp;#x27;file\\&amp;#x27; not in request.files:\\n            return redirect(request.url)\\n        \\n        file = request.files[\\&amp;#x27;file\\&amp;#x27;]\\n        \\n        # If user does not select file, browser also submits an empty part\\n        if file.filename == \\&amp;#x27;\\&amp;#x27;:\\n            return redirect(request.url)\\n        \\n        if file and allowed_file(file.filename):\\n            # Save the file\\n            filepath = os.path.join(app.config[\\&amp;#x27;UPLOAD_FOLDER\\&amp;#x27;], file.filename)\\n            file.save(filepath)\\n            \\n            # Process the CSV file\\n            return redirect(url_for(\\&amp;#x27;process_file\\&amp;#x27;, filename=file.filename))\\n    \\n    return render_template(\\&amp;#x27;index.html\\&amp;#x27;)\\n```\\n\\nME: Thanks! That\\&amp;#x27;s helpful. Oh wait, I just realized I forgot how to do list comprehensions in Python. My brain is all over the place today.\\n\\nBUDDY: No worries! List comprehensions are super useful. The basic syntax is:\\n\\n```python\\nnew_list = [expression for item in iterable if condition]\\n```\\n\\nFor example, to square all numbers from 0 to 9:\\n```python\\nsquares = [x**2 for x in range(10)]  # [0, 1, 4, 9, 16, 25, 36, 49, 64, 81]\\n```\\n\\nOr to get only even squares:\\n```python\\neven_squares = [x**2 for x in range(10) if x % 2 == 0]  # [0, 4, 16, 36, 64]\\n```\\n\\nME: Perfect, thanks! Back to the Flask app - how would I process the CSV file once it\\&amp;#x27;s uploaded?\\n\\nBUDDY: You\\&amp;#x27;d want to add a route to process the file. Here\\&amp;#x27;s how you might do it:\\n\\n```python\\n@app.route(\\&amp;#x27;/process/&amp;lt;filename&amp;gt;\\&amp;#x27;)\\ndef process_file(filename):\\n    filepath = os.path.join(app.config[\\&amp;#x27;UPLOAD_FOLDER\\&amp;#x27;], filename)\\n    \\n    # Read and process the CSV file with pandas\\n    df = pd.read_csv(filepath)\\n    \\n    # Example processing: get basic statistics\\n    stats = {\\n        \\&amp;#x27;rows\\&amp;#x27;: len(df),\\n        \\&amp;#x27;columns\\&amp;#x27;: len(df.columns),\\n        \\&amp;#x27;column_names\\&amp;#x27;: df.columns.tolist(),\\n        \\&amp;#x27;preview\\&amp;#x27;: df.head().to_html()\\n    }\\n    \\n    return render_template(\\&amp;#x27;results.html\\&amp;#x27;, filename=filename, stats=stats)\\n```\\n\\nME: That makes sense. I\\&amp;#x27;m having trouble focusing on implementing this though. Do you have any other tips for coding with ADHD?\\n\\nBUDDY: Definitely! Here are a few strategies that help me:\\n\\n1. **Body doubling**: Having someone else work alongside you (even virtually) can help maintain focus.\\n2. **Visual timers**: Keep a timer in your field of view to help with time awareness.\\n3. **Break tasks down**: Divide your coding tasks into smaller, manageable chunks.\\n4. **Comment-driven development**: Write comments first describing what you need to do, then fill in the code.\\n5. **Minimize distractions**: Use website blockers and turn off notifications.\\n\\nME: Those are great tips. I\\&amp;#x27;ll try the comment-driven development approach. Speaking of comments, what\\&amp;#x27;s the best way to organize Python code to keep it maintainable?\\n\\nBUDDY: Good question! Here are some best practices for organizing Python code:\\n\\n1. **Follow a clear directory structure**:\\n```\\nmy_project/\\n\u251c\u2500\u2500 my_package/\\n\u2502   \u251c\u2500\u2500 __init__.py\\n\u2502   \u251c\u2500\u2500 module1.py\\n\u2502   \u2514\u2500\u2500 subpackage/\\n\u2502       \u251c\u2500\u2500 __init__.py\\n\u2502       \u2514\u2500\u2500 module2.py\\n\u251c\u2500\u2500 tests/\\n\u251c\u2500\u2500 README.md\\n\u2514\u2500\u2500 setup.py\\n```\\n\\n2. **Follow PEP 8** for consistent, readable code.\\n\\n3. **Organize module content**:\\n```python\\n&amp;quot;&amp;quot;&amp;quot;Module docstring explaining purpose.&amp;quot;&amp;quot;&amp;quot;\\n\\n# Standard library imports\\nimport os\\nimport sys\\n\\n# Third-party imports\\nimport numpy as np\\nimport pandas as pd\\n\\n# Local application imports\\nfrom mypackage import utils\\n\\n# Constants\\nMAX_ITEMS = 100\\n\\n# Classes\\nclass MyClass:\\n    pass\\n\\n# Functions\\ndef my_function():\\n    pass\\n\\n# Main execution\\nif __name__ == &amp;quot;__main__&amp;quot;:\\n    my_function()\\n```\\n\\n4. **Write docstrings** for modules, classes, and functions.\\n\\n5. **Keep functions small** and focused on a single task.\\n\\nME: That\\&amp;#x27;s really helpful! I\\&amp;#x27;m going to implement this structure. Oh, I just realized I don\\&amp;#x27;t remember how to create and update dictionaries in Python. Can you remind me?\\n\\nBUDDY: Sure thing! Here\\&amp;#x27;s a quick refresher on Python dictionaries:\\n\\n```python\\n# Creating dictionaries\\nempty_dict = {}  # Empty dictionary\\n\\nperson = {  # Dictionary with initial values\\n    &amp;quot;name&amp;quot;: &amp;quot;John&amp;quot;,\\n    &amp;quot;age&amp;quot;: 30,\\n    &amp;quot;city&amp;quot;: &amp;quot;New York&amp;quot;\\n}\\n\\n# Alternative creation using dict()\\nperson = dict(name=&amp;quot;John&amp;quot;, age=30, city=&amp;quot;New York&amp;quot;)\\n\\n# Accessing values\\nname = person[&amp;quot;name&amp;quot;]  # Using square brackets\\nage = person.get(&amp;quot;age&amp;quot;)  # Using get() method (safer, returns None if key doesn\\&amp;#x27;t exist)\\n\\n# Updating dictionaries\\nperson[&amp;quot;email&amp;quot;] = &amp;quot;john@example.com&amp;quot;  # Add new key-value pair\\nperson[&amp;quot;age&amp;quot;] = 31  # Update existing value\\n\\n# Update multiple values at once\\nperson.update({&amp;quot;age&amp;quot;: 32, &amp;quot;job&amp;quot;: &amp;quot;Developer&amp;quot;})\\n\\n# Removing items\\ndel person[&amp;quot;age&amp;quot;]  # Remove by key\\nemail = person.pop(&amp;quot;email&amp;quot;)  # Remove and return value\\n```\\n\\nME: Thanks! I always mix up the syntax. I\\&amp;#x27;m going to start implementing the CSV processing now. What\\&amp;#x27;s the best way to debug if I run into issues?\\n\\nBUDDY: For debugging in Python, you have several good options:\\n\\n1. **Flask\\&amp;#x27;s debug mode**: Just make sure you have:\\n```python\\nif __name__ == \\&amp;#x27;__main__\\&amp;#x27;:\\n    app.run(debug=True)\\n```\\n\\n2. **Print debugging**: The simplest approach:\\n```python\\nprint(f&amp;quot;Variable x = {x}&amp;quot;)\\n```\\n\\n3. **Using pdb**: Python\\&amp;#x27;s built-in debugger:\\n```python\\nimport pdb\\n\\ndef my_function():\\n    x = 5\\n    y = 0\\n    pdb.set_trace()  # Code will pause here\\n    result = x / y  # This will cause an error\\n```\\n\\n4. **Using breakpoint()**: In Python 3.7+:\\n```python\\ndef my_function():\\n    x = 5\\n    y = 0\\n    breakpoint()  # Equivalent to pdb.set_trace()\\n    result = x / y\\n```\\n\\n5. **Logging**: Better than print statements for production:\\n```python\\nimport logging\\n\\nlogging.basicConfig(level=logging.DEBUG)\\nlogger = logging.getLogger(__name__)\\n\\ndef divide(x, y):\\n    logger.debug(f&amp;quot;Dividing {x} by {y}&amp;quot;)\\n    try:\\n        result = x / y\\n        logger.debug(f&amp;quot;Result: {result}&amp;quot;)\\n        return result\\n    except ZeroDivisionError:\\n        logger.error(&amp;quot;Division by zero!&amp;quot;)\\n        return None\\n```\\n\\nME: Perfect! I think I\\&amp;#x27;ll use Flask\\&amp;#x27;s debug mode for now. One last thing - what\\&amp;#x27;s the best way to handle large CSV files that might not fit in memory?\\n\\nBUDDY: That\\&amp;#x27;s an important consideration! For large CSV files, you have several options:\\n\\n1. **Chunked processing with pandas**:\\n```python\\nchunk_size = 10000  # Adjust based on your memory constraints\\nfor chunk in pd.read_csv(filepath, chunksize=chunk_size):\\n    # Process each chunk\\n    process_chunk(chunk)\\n```\\n\\n2. **Stream processing with CSV module**:\\n```python\\nimport csv\\n\\nwith open(filepath, \\&amp;#x27;r\\&amp;#x27;) as f:\\n    csv_reader = csv.reader(f)\\n    headers = next(csv_reader)  # Get headers\\n    \\n    for row in csv_reader:\\n        # Process one row at a time\\n        process_row(row)\\n```\\n\\n3. **Database approach**: Load the CSV into a database and process with SQL:\\n```python\\nimport sqlite3\\n\\n# Create a temporary database\\nconn = sqlite3.connect(\\&amp;#x27;:memory:\\&amp;#x27;)\\n\\n# Create table and import data in chunks\\nfor chunk in pd.read_csv(filepath, chunksize=10000):\\n    chunk.to_sql(\\&amp;#x27;data\\&amp;#x27;, conn, if_exists=\\&amp;#x27;append\\&amp;#x27;, index=False)\\n\\n# Use SQL to process the data\\nresult = pd.read_sql(\\&amp;#x27;SELECT * FROM data LIMIT 10\\&amp;#x27;, conn)\\n```\\n\\nME: That\\&amp;#x27;s super helpful! I think I\\&amp;#x27;ll go with the chunked processing approach. Thanks for all your help today!\\n\\nBUDDY: No problem! Good luck with your Flask app. Remember to take breaks and be kind to yourself - coding with ADHD can be challenging, but you\\&amp;#x27;re doing great!\\n\\nME: Thanks! I\\&amp;#x27;ll let you know how it goes.\\n&amp;#x27;\ntest_data_dir: &amp;#x27;C:\\\\Users\\\\washy\\\\workspace\\\\conversation_memory_test\\\\tests\\\\data&amp;#x27;&#34;}], &#34;tests/test_topic_extraction.py::test_topic_categorization_accuracy&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_topic_extraction.py::test_topic_categorization_accuracy&#34;, &#34;duration&#34;: &#34;281 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_topic_extraction.py::test_topic_categorization_accuracy&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;281 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stdout setup -----------------------------\n\n================================================================================\nRUNNING TEST: test_topic_categorization_accuracy\n--------------------------------------------------------------------------------\n\n----------------------------- Captured stderr call -----------------------------\nINFO: Testing topic categorization accuracy\nINFO: Python Syntax keywords found: {&amp;#x27;return&amp;#x27;, &amp;#x27;syntax&amp;#x27;, &amp;#x27;class&amp;#x27;, &amp;#x27;print(&amp;#x27;, &amp;#x27;=&amp;#x27;, &amp;#x27;def &amp;#x27;, &amp;#x27;dictionary&amp;#x27;, &amp;#x27;import&amp;#x27;, &amp;#x27;variable&amp;#x27;}\nINFO: ADHD &amp;amp; Productivity keywords found: {&amp;#x27;ADHD&amp;#x27;, &amp;#x27;focus&amp;#x27;, &amp;#x27;break&amp;#x27;, &amp;#x27;task&amp;#x27;, &amp;#x27;timer&amp;#x27;, &amp;#x27;Pomodoro&amp;#x27;}\nINFO: Web Development keywords found: {&amp;#x27;HTML&amp;#x27;, &amp;#x27;request&amp;#x27;, &amp;#x27;route&amp;#x27;, &amp;#x27;Flask&amp;#x27;, &amp;#x27;browser&amp;#x27;}\nINFO: Data Processing keywords found: {&amp;#x27;CSV&amp;#x27;, &amp;#x27;processing&amp;#x27;, &amp;#x27;data&amp;#x27;, &amp;#x27;pandas&amp;#x27;, &amp;#x27;statistics&amp;#x27;, &amp;#x27;numpy&amp;#x27;}\nINFO: \u2705 Successfully verified topic categorization accuracy\n\n------------------------------ Captured log call -------------------------------\nINFO     tests.test_topic_extraction:test_topic_extraction.py:83 Testing topic categorization accuracy\nINFO     tests.test_topic_extraction:test_topic_extraction.py:92 Python Syntax keywords found: {&amp;#x27;return&amp;#x27;, &amp;#x27;syntax&amp;#x27;, &amp;#x27;class&amp;#x27;, &amp;#x27;print(&amp;#x27;, &amp;#x27;=&amp;#x27;, &amp;#x27;def &amp;#x27;, &amp;#x27;dictionary&amp;#x27;, &amp;#x27;import&amp;#x27;, &amp;#x27;variable&amp;#x27;}\nINFO     tests.test_topic_extraction:test_topic_extraction.py:98 ADHD &amp;amp; Productivity keywords found: {&amp;#x27;ADHD&amp;#x27;, &amp;#x27;focus&amp;#x27;, &amp;#x27;break&amp;#x27;, &amp;#x27;task&amp;#x27;, &amp;#x27;timer&amp;#x27;, &amp;#x27;Pomodoro&amp;#x27;}\nINFO     tests.test_topic_extraction:test_topic_extraction.py:104 Web Development keywords found: {&amp;#x27;HTML&amp;#x27;, &amp;#x27;request&amp;#x27;, &amp;#x27;route&amp;#x27;, &amp;#x27;Flask&amp;#x27;, &amp;#x27;browser&amp;#x27;}\nINFO     tests.test_topic_extraction:test_topic_extraction.py:110 Data Processing keywords found: {&amp;#x27;CSV&amp;#x27;, &amp;#x27;processing&amp;#x27;, &amp;#x27;data&amp;#x27;, &amp;#x27;pandas&amp;#x27;, &amp;#x27;statistics&amp;#x27;, &amp;#x27;numpy&amp;#x27;}\nINFO     tests.test_topic_extraction:test_topic_extraction.py:114 \u2705 Successfully verified topic categorization accuracy\n\n\n------------------------------- Test Description -------------------------------\nFEATURE: Accurate topic categorization in mixed conversation\n\nTest that topics are correctly categorized based on their content,\neven in a conversation that jumps between different topics.\n------------------------------- Test Parameters --------------------------------\ncoding_buddy_conversation: &amp;#x27;CONVERSATION WITH CODING BUDDY - APRIL 20, 2025\\n\\nME: Hey, I\\&amp;#x27;m trying to build this Flask app that processes CSV files, but I keep getting distracted. My ADHD is really acting up today.\\n\\nBUDDY: That happens! Have you tried the Pomodoro technique? 25 minutes of focus, then a 5-minute break.\\n\\nME: Yeah, I should do that. Anyway, I\\&amp;#x27;m stuck on how to handle file uploads in Flask. Do you know the best way to do that?\\n\\nBUDDY: Sure, file uploads in Flask are pretty straightforward. Here\\&amp;#x27;s a basic pattern:\\n\\n```python\\nimport os\\nfrom flask import Flask, request, render_template, redirect, url_for\\nimport pandas as pd\\n\\napp = Flask(__name__)\\napp.config[\\&amp;#x27;UPLOAD_FOLDER\\&amp;#x27;] = \\&amp;#x27;uploads\\&amp;#x27;\\napp.config[\\&amp;#x27;ALLOWED_EXTENSIONS\\&amp;#x27;] = {\\&amp;#x27;csv\\&amp;#x27;}\\n\\n# Ensure upload directory exists\\nos.makedirs(app.config[\\&amp;#x27;UPLOAD_FOLDER\\&amp;#x27;], exist_ok=True)\\n\\ndef allowed_file(filename):\\n    return \\&amp;#x27;.\\&amp;#x27; in filename and filename.rsplit(\\&amp;#x27;.\\&amp;#x27;, 1)[1].lower() in app.config[\\&amp;#x27;ALLOWED_EXTENSIONS\\&amp;#x27;]\\n\\n@app.route(\\&amp;#x27;/\\&amp;#x27;, methods=[\\&amp;#x27;GET\\&amp;#x27;, \\&amp;#x27;POST\\&amp;#x27;])\\ndef index():\\n    if request.method == \\&amp;#x27;POST\\&amp;#x27;:\\n        # Check if the post request has the file part\\n        if \\&amp;#x27;file\\&amp;#x27; not in request.files:\\n            return redirect(request.url)\\n        \\n        file = request.files[\\&amp;#x27;file\\&amp;#x27;]\\n        \\n        # If user does not select file, browser also submits an empty part\\n        if file.filename == \\&amp;#x27;\\&amp;#x27;:\\n            return redirect(request.url)\\n        \\n        if file and allowed_file(file.filename):\\n            # Save the file\\n            filepath = os.path.join(app.config[\\&amp;#x27;UPLOAD_FOLDER\\&amp;#x27;], file.filename)\\n            file.save(filepath)\\n            \\n            # Process the CSV file\\n            return redirect(url_for(\\&amp;#x27;process_file\\&amp;#x27;, filename=file.filename))\\n    \\n    return render_template(\\&amp;#x27;index.html\\&amp;#x27;)\\n```\\n\\nME: Thanks! That\\&amp;#x27;s helpful. Oh wait, I just realized I forgot how to do list comprehensions in Python. My brain is all over the place today.\\n\\nBUDDY: No worries! List comprehensions are super useful. The basic syntax is:\\n\\n```python\\nnew_list = [expression for item in iterable if condition]\\n```\\n\\nFor example, to square all numbers from 0 to 9:\\n```python\\nsquares = [x**2 for x in range(10)]  # [0, 1, 4, 9, 16, 25, 36, 49, 64, 81]\\n```\\n\\nOr to get only even squares:\\n```python\\neven_squares = [x**2 for x in range(10) if x % 2 == 0]  # [0, 4, 16, 36, 64]\\n```\\n\\nME: Perfect, thanks! Back to the Flask app - how would I process the CSV file once it\\&amp;#x27;s uploaded?\\n\\nBUDDY: You\\&amp;#x27;d want to add a route to process the file. Here\\&amp;#x27;s how you might do it:\\n\\n```python\\n@app.route(\\&amp;#x27;/process/&amp;lt;filename&amp;gt;\\&amp;#x27;)\\ndef process_file(filename):\\n    filepath = os.path.join(app.config[\\&amp;#x27;UPLOAD_FOLDER\\&amp;#x27;], filename)\\n    \\n    # Read and process the CSV file with pandas\\n    df = pd.read_csv(filepath)\\n    \\n    # Example processing: get basic statistics\\n    stats = {\\n        \\&amp;#x27;rows\\&amp;#x27;: len(df),\\n        \\&amp;#x27;columns\\&amp;#x27;: len(df.columns),\\n        \\&amp;#x27;column_names\\&amp;#x27;: df.columns.tolist(),\\n        \\&amp;#x27;preview\\&amp;#x27;: df.head().to_html()\\n    }\\n    \\n    return render_template(\\&amp;#x27;results.html\\&amp;#x27;, filename=filename, stats=stats)\\n```\\n\\nME: That makes sense. I\\&amp;#x27;m having trouble focusing on implementing this though. Do you have any other tips for coding with ADHD?\\n\\nBUDDY: Definitely! Here are a few strategies that help me:\\n\\n1. **Body doubling**: Having someone else work alongside you (even virtually) can help maintain focus.\\n2. **Visual timers**: Keep a timer in your field of view to help with time awareness.\\n3. **Break tasks down**: Divide your coding tasks into smaller, manageable chunks.\\n4. **Comment-driven development**: Write comments first describing what you need to do, then fill in the code.\\n5. **Minimize distractions**: Use website blockers and turn off notifications.\\n\\nME: Those are great tips. I\\&amp;#x27;ll try the comment-driven development approach. Speaking of comments, what\\&amp;#x27;s the best way to organize Python code to keep it maintainable?\\n\\nBUDDY: Good question! Here are some best practices for organizing Python code:\\n\\n1. **Follow a clear directory structure**:\\n```\\nmy_project/\\n\u251c\u2500\u2500 my_package/\\n\u2502   \u251c\u2500\u2500 __init__.py\\n\u2502   \u251c\u2500\u2500 module1.py\\n\u2502   \u2514\u2500\u2500 subpackage/\\n\u2502       \u251c\u2500\u2500 __init__.py\\n\u2502       \u2514\u2500\u2500 module2.py\\n\u251c\u2500\u2500 tests/\\n\u251c\u2500\u2500 README.md\\n\u2514\u2500\u2500 setup.py\\n```\\n\\n2. **Follow PEP 8** for consistent, readable code.\\n\\n3. **Organize module content**:\\n```python\\n&amp;quot;&amp;quot;&amp;quot;Module docstring explaining purpose.&amp;quot;&amp;quot;&amp;quot;\\n\\n# Standard library imports\\nimport os\\nimport sys\\n\\n# Third-party imports\\nimport numpy as np\\nimport pandas as pd\\n\\n# Local application imports\\nfrom mypackage import utils\\n\\n# Constants\\nMAX_ITEMS = 100\\n\\n# Classes\\nclass MyClass:\\n    pass\\n\\n# Functions\\ndef my_function():\\n    pass\\n\\n# Main execution\\nif __name__ == &amp;quot;__main__&amp;quot;:\\n    my_function()\\n```\\n\\n4. **Write docstrings** for modules, classes, and functions.\\n\\n5. **Keep functions small** and focused on a single task.\\n\\nME: That\\&amp;#x27;s really helpful! I\\&amp;#x27;m going to implement this structure. Oh, I just realized I don\\&amp;#x27;t remember how to create and update dictionaries in Python. Can you remind me?\\n\\nBUDDY: Sure thing! Here\\&amp;#x27;s a quick refresher on Python dictionaries:\\n\\n```python\\n# Creating dictionaries\\nempty_dict = {}  # Empty dictionary\\n\\nperson = {  # Dictionary with initial values\\n    &amp;quot;name&amp;quot;: &amp;quot;John&amp;quot;,\\n    &amp;quot;age&amp;quot;: 30,\\n    &amp;quot;city&amp;quot;: &amp;quot;New York&amp;quot;\\n}\\n\\n# Alternative creation using dict()\\nperson = dict(name=&amp;quot;John&amp;quot;, age=30, city=&amp;quot;New York&amp;quot;)\\n\\n# Accessing values\\nname = person[&amp;quot;name&amp;quot;]  # Using square brackets\\nage = person.get(&amp;quot;age&amp;quot;)  # Using get() method (safer, returns None if key doesn\\&amp;#x27;t exist)\\n\\n# Updating dictionaries\\nperson[&amp;quot;email&amp;quot;] = &amp;quot;john@example.com&amp;quot;  # Add new key-value pair\\nperson[&amp;quot;age&amp;quot;] = 31  # Update existing value\\n\\n# Update multiple values at once\\nperson.update({&amp;quot;age&amp;quot;: 32, &amp;quot;job&amp;quot;: &amp;quot;Developer&amp;quot;})\\n\\n# Removing items\\ndel person[&amp;quot;age&amp;quot;]  # Remove by key\\nemail = person.pop(&amp;quot;email&amp;quot;)  # Remove and return value\\n```\\n\\nME: Thanks! I always mix up the syntax. I\\&amp;#x27;m going to start implementing the CSV processing now. What\\&amp;#x27;s the best way to debug if I run into issues?\\n\\nBUDDY: For debugging in Python, you have several good options:\\n\\n1. **Flask\\&amp;#x27;s debug mode**: Just make sure you have:\\n```python\\nif __name__ == \\&amp;#x27;__main__\\&amp;#x27;:\\n    app.run(debug=True)\\n```\\n\\n2. **Print debugging**: The simplest approach:\\n```python\\nprint(f&amp;quot;Variable x = {x}&amp;quot;)\\n```\\n\\n3. **Using pdb**: Python\\&amp;#x27;s built-in debugger:\\n```python\\nimport pdb\\n\\ndef my_function():\\n    x = 5\\n    y = 0\\n    pdb.set_trace()  # Code will pause here\\n    result = x / y  # This will cause an error\\n```\\n\\n4. **Using breakpoint()**: In Python 3.7+:\\n```python\\ndef my_function():\\n    x = 5\\n    y = 0\\n    breakpoint()  # Equivalent to pdb.set_trace()\\n    result = x / y\\n```\\n\\n5. **Logging**: Better than print statements for production:\\n```python\\nimport logging\\n\\nlogging.basicConfig(level=logging.DEBUG)\\nlogger = logging.getLogger(__name__)\\n\\ndef divide(x, y):\\n    logger.debug(f&amp;quot;Dividing {x} by {y}&amp;quot;)\\n    try:\\n        result = x / y\\n        logger.debug(f&amp;quot;Result: {result}&amp;quot;)\\n        return result\\n    except ZeroDivisionError:\\n        logger.error(&amp;quot;Division by zero!&amp;quot;)\\n        return None\\n```\\n\\nME: Perfect! I think I\\&amp;#x27;ll use Flask\\&amp;#x27;s debug mode for now. One last thing - what\\&amp;#x27;s the best way to handle large CSV files that might not fit in memory?\\n\\nBUDDY: That\\&amp;#x27;s an important consideration! For large CSV files, you have several options:\\n\\n1. **Chunked processing with pandas**:\\n```python\\nchunk_size = 10000  # Adjust based on your memory constraints\\nfor chunk in pd.read_csv(filepath, chunksize=chunk_size):\\n    # Process each chunk\\n    process_chunk(chunk)\\n```\\n\\n2. **Stream processing with CSV module**:\\n```python\\nimport csv\\n\\nwith open(filepath, \\&amp;#x27;r\\&amp;#x27;) as f:\\n    csv_reader = csv.reader(f)\\n    headers = next(csv_reader)  # Get headers\\n    \\n    for row in csv_reader:\\n        # Process one row at a time\\n        process_row(row)\\n```\\n\\n3. **Database approach**: Load the CSV into a database and process with SQL:\\n```python\\nimport sqlite3\\n\\n# Create a temporary database\\nconn = sqlite3.connect(\\&amp;#x27;:memory:\\&amp;#x27;)\\n\\n# Create table and import data in chunks\\nfor chunk in pd.read_csv(filepath, chunksize=10000):\\n    chunk.to_sql(\\&amp;#x27;data\\&amp;#x27;, conn, if_exists=\\&amp;#x27;append\\&amp;#x27;, index=False)\\n\\n# Use SQL to process the data\\nresult = pd.read_sql(\\&amp;#x27;SELECT * FROM data LIMIT 10\\&amp;#x27;, conn)\\n```\\n\\nME: That\\&amp;#x27;s super helpful! I think I\\&amp;#x27;ll go with the chunked processing approach. Thanks for all your help today!\\n\\nBUDDY: No problem! Good luck with your Flask app. Remember to take breaks and be kind to yourself - coding with ADHD can be challenging, but you\\&amp;#x27;re doing great!\\n\\nME: Thanks! I\\&amp;#x27;ll let you know how it goes.\\n&amp;#x27;\ntest_data_dir: &amp;#x27;C:\\\\Users\\\\washy\\\\workspace\\\\conversation_memory_test\\\\tests\\\\data&amp;#x27;&#34;}], &#34;tests/test_topic_extraction.py::test_context_preservation&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_topic_extraction.py::test_context_preservation&#34;, &#34;duration&#34;: &#34;809 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_topic_extraction.py::test_context_preservation&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;809 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stdout setup -----------------------------\n\n================================================================================\nRUNNING TEST: test_context_preservation\n--------------------------------------------------------------------------------\n\n----------------------------- Captured stderr call -----------------------------\nINFO: Testing context preservation in topic extraction\nINFO: Category &amp;#x27;Python Syntax&amp;#x27; with context_lines=1: 3 lines\nINFO: Category &amp;#x27;Python Syntax&amp;#x27; with context_lines=3: 7 lines\nINFO: Category &amp;#x27;Web Development&amp;#x27; with context_lines=1: 3 lines\nINFO: Category &amp;#x27;Web Development&amp;#x27; with context_lines=3: 6 lines\nINFO: Category &amp;#x27;Data Processing&amp;#x27; with context_lines=1: 3 lines\nINFO: Category &amp;#x27;Data Processing&amp;#x27; with context_lines=3: 7 lines\nINFO: Category &amp;#x27;ADHD &amp;amp; Productivity&amp;#x27; with context_lines=1: 3 lines\nINFO: Category &amp;#x27;ADHD &amp;amp; Productivity&amp;#x27; with context_lines=3: 6 lines\nINFO: Category &amp;#x27;Best Practices&amp;#x27; with context_lines=1: 3 lines\nINFO: Category &amp;#x27;Best Practices&amp;#x27; with context_lines=3: 7 lines\nINFO: Category &amp;#x27;Debugging&amp;#x27; with context_lines=1: 3 lines\nINFO: Category &amp;#x27;Debugging&amp;#x27; with context_lines=3: 7 lines\nINFO: Category &amp;#x27;Dynamic Topics&amp;#x27; with context_lines=1: 3 lines\nINFO: Category &amp;#x27;Dynamic Topics&amp;#x27; with context_lines=3: 7 lines\nINFO: Context for ADHD match: 5 lines\nINFO: \u2705 Successfully verified context preservation\n\n------------------------------ Captured log call -------------------------------\nINFO     tests.test_topic_extraction:test_topic_extraction.py:124 Testing context preservation in topic extraction\nINFO     tests.test_topic_extraction:test_topic_extraction.py:137 Category &amp;#x27;Python Syntax&amp;#x27; with context_lines=1: 3 lines\nINFO     tests.test_topic_extraction:test_topic_extraction.py:138 Category &amp;#x27;Python Syntax&amp;#x27; with context_lines=3: 7 lines\nINFO     tests.test_topic_extraction:test_topic_extraction.py:137 Category &amp;#x27;Web Development&amp;#x27; with context_lines=1: 3 lines\nINFO     tests.test_topic_extraction:test_topic_extraction.py:138 Category &amp;#x27;Web Development&amp;#x27; with context_lines=3: 6 lines\nINFO     tests.test_topic_extraction:test_topic_extraction.py:137 Category &amp;#x27;Data Processing&amp;#x27; with context_lines=1: 3 lines\nINFO     tests.test_topic_extraction:test_topic_extraction.py:138 Category &amp;#x27;Data Processing&amp;#x27; with context_lines=3: 7 lines\nINFO     tests.test_topic_extraction:test_topic_extraction.py:137 Category &amp;#x27;ADHD &amp;amp; Productivity&amp;#x27; with context_lines=1: 3 lines\nINFO     tests.test_topic_extraction:test_topic_extraction.py:138 Category &amp;#x27;ADHD &amp;amp; Productivity&amp;#x27; with context_lines=3: 6 lines\nINFO     tests.test_topic_extraction:test_topic_extraction.py:137 Category &amp;#x27;Best Practices&amp;#x27; with context_lines=1: 3 lines\nINFO     tests.test_topic_extraction:test_topic_extraction.py:138 Category &amp;#x27;Best Practices&amp;#x27; with context_lines=3: 7 lines\nINFO     tests.test_topic_extraction:test_topic_extraction.py:137 Category &amp;#x27;Debugging&amp;#x27; with context_lines=1: 3 lines\nINFO     tests.test_topic_extraction:test_topic_extraction.py:138 Category &amp;#x27;Debugging&amp;#x27; with context_lines=3: 7 lines\nINFO     tests.test_topic_extraction:test_topic_extraction.py:137 Category &amp;#x27;Dynamic Topics&amp;#x27; with context_lines=1: 3 lines\nINFO     tests.test_topic_extraction:test_topic_extraction.py:138 Category &amp;#x27;Dynamic Topics&amp;#x27; with context_lines=3: 7 lines\nINFO     tests.test_topic_extraction:test_topic_extraction.py:155 Context for ADHD match: 5 lines\nINFO     tests.test_topic_extraction:test_topic_extraction.py:162 \u2705 Successfully verified context preservation\n\n\n------------------------------- Test Description -------------------------------\nFEATURE: Context preservation in topic extraction\n\nTest that the context around each topic is preserved correctly,\nproviding meaningful context even in a mixed conversation.\n------------------------------- Test Parameters --------------------------------\ncoding_buddy_conversation: &amp;#x27;CONVERSATION WITH CODING BUDDY - APRIL 20, 2025\\n\\nME: Hey, I\\&amp;#x27;m trying to build this Flask app that processes CSV files, but I keep getting distracted. My ADHD is really acting up today.\\n\\nBUDDY: That happens! Have you tried the Pomodoro technique? 25 minutes of focus, then a 5-minute break.\\n\\nME: Yeah, I should do that. Anyway, I\\&amp;#x27;m stuck on how to handle file uploads in Flask. Do you know the best way to do that?\\n\\nBUDDY: Sure, file uploads in Flask are pretty straightforward. Here\\&amp;#x27;s a basic pattern:\\n\\n```python\\nimport os\\nfrom flask import Flask, request, render_template, redirect, url_for\\nimport pandas as pd\\n\\napp = Flask(__name__)\\napp.config[\\&amp;#x27;UPLOAD_FOLDER\\&amp;#x27;] = \\&amp;#x27;uploads\\&amp;#x27;\\napp.config[\\&amp;#x27;ALLOWED_EXTENSIONS\\&amp;#x27;] = {\\&amp;#x27;csv\\&amp;#x27;}\\n\\n# Ensure upload directory exists\\nos.makedirs(app.config[\\&amp;#x27;UPLOAD_FOLDER\\&amp;#x27;], exist_ok=True)\\n\\ndef allowed_file(filename):\\n    return \\&amp;#x27;.\\&amp;#x27; in filename and filename.rsplit(\\&amp;#x27;.\\&amp;#x27;, 1)[1].lower() in app.config[\\&amp;#x27;ALLOWED_EXTENSIONS\\&amp;#x27;]\\n\\n@app.route(\\&amp;#x27;/\\&amp;#x27;, methods=[\\&amp;#x27;GET\\&amp;#x27;, \\&amp;#x27;POST\\&amp;#x27;])\\ndef index():\\n    if request.method == \\&amp;#x27;POST\\&amp;#x27;:\\n        # Check if the post request has the file part\\n        if \\&amp;#x27;file\\&amp;#x27; not in request.files:\\n            return redirect(request.url)\\n        \\n        file = request.files[\\&amp;#x27;file\\&amp;#x27;]\\n        \\n        # If user does not select file, browser also submits an empty part\\n        if file.filename == \\&amp;#x27;\\&amp;#x27;:\\n            return redirect(request.url)\\n        \\n        if file and allowed_file(file.filename):\\n            # Save the file\\n            filepath = os.path.join(app.config[\\&amp;#x27;UPLOAD_FOLDER\\&amp;#x27;], file.filename)\\n            file.save(filepath)\\n            \\n            # Process the CSV file\\n            return redirect(url_for(\\&amp;#x27;process_file\\&amp;#x27;, filename=file.filename))\\n    \\n    return render_template(\\&amp;#x27;index.html\\&amp;#x27;)\\n```\\n\\nME: Thanks! That\\&amp;#x27;s helpful. Oh wait, I just realized I forgot how to do list comprehensions in Python. My brain is all over the place today.\\n\\nBUDDY: No worries! List comprehensions are super useful. The basic syntax is:\\n\\n```python\\nnew_list = [expression for item in iterable if condition]\\n```\\n\\nFor example, to square all numbers from 0 to 9:\\n```python\\nsquares = [x**2 for x in range(10)]  # [0, 1, 4, 9, 16, 25, 36, 49, 64, 81]\\n```\\n\\nOr to get only even squares:\\n```python\\neven_squares = [x**2 for x in range(10) if x % 2 == 0]  # [0, 4, 16, 36, 64]\\n```\\n\\nME: Perfect, thanks! Back to the Flask app - how would I process the CSV file once it\\&amp;#x27;s uploaded?\\n\\nBUDDY: You\\&amp;#x27;d want to add a route to process the file. Here\\&amp;#x27;s how you might do it:\\n\\n```python\\n@app.route(\\&amp;#x27;/process/&amp;lt;filename&amp;gt;\\&amp;#x27;)\\ndef process_file(filename):\\n    filepath = os.path.join(app.config[\\&amp;#x27;UPLOAD_FOLDER\\&amp;#x27;], filename)\\n    \\n    # Read and process the CSV file with pandas\\n    df = pd.read_csv(filepath)\\n    \\n    # Example processing: get basic statistics\\n    stats = {\\n        \\&amp;#x27;rows\\&amp;#x27;: len(df),\\n        \\&amp;#x27;columns\\&amp;#x27;: len(df.columns),\\n        \\&amp;#x27;column_names\\&amp;#x27;: df.columns.tolist(),\\n        \\&amp;#x27;preview\\&amp;#x27;: df.head().to_html()\\n    }\\n    \\n    return render_template(\\&amp;#x27;results.html\\&amp;#x27;, filename=filename, stats=stats)\\n```\\n\\nME: That makes sense. I\\&amp;#x27;m having trouble focusing on implementing this though. Do you have any other tips for coding with ADHD?\\n\\nBUDDY: Definitely! Here are a few strategies that help me:\\n\\n1. **Body doubling**: Having someone else work alongside you (even virtually) can help maintain focus.\\n2. **Visual timers**: Keep a timer in your field of view to help with time awareness.\\n3. **Break tasks down**: Divide your coding tasks into smaller, manageable chunks.\\n4. **Comment-driven development**: Write comments first describing what you need to do, then fill in the code.\\n5. **Minimize distractions**: Use website blockers and turn off notifications.\\n\\nME: Those are great tips. I\\&amp;#x27;ll try the comment-driven development approach. Speaking of comments, what\\&amp;#x27;s the best way to organize Python code to keep it maintainable?\\n\\nBUDDY: Good question! Here are some best practices for organizing Python code:\\n\\n1. **Follow a clear directory structure**:\\n```\\nmy_project/\\n\u251c\u2500\u2500 my_package/\\n\u2502   \u251c\u2500\u2500 __init__.py\\n\u2502   \u251c\u2500\u2500 module1.py\\n\u2502   \u2514\u2500\u2500 subpackage/\\n\u2502       \u251c\u2500\u2500 __init__.py\\n\u2502       \u2514\u2500\u2500 module2.py\\n\u251c\u2500\u2500 tests/\\n\u251c\u2500\u2500 README.md\\n\u2514\u2500\u2500 setup.py\\n```\\n\\n2. **Follow PEP 8** for consistent, readable code.\\n\\n3. **Organize module content**:\\n```python\\n&amp;quot;&amp;quot;&amp;quot;Module docstring explaining purpose.&amp;quot;&amp;quot;&amp;quot;\\n\\n# Standard library imports\\nimport os\\nimport sys\\n\\n# Third-party imports\\nimport numpy as np\\nimport pandas as pd\\n\\n# Local application imports\\nfrom mypackage import utils\\n\\n# Constants\\nMAX_ITEMS = 100\\n\\n# Classes\\nclass MyClass:\\n    pass\\n\\n# Functions\\ndef my_function():\\n    pass\\n\\n# Main execution\\nif __name__ == &amp;quot;__main__&amp;quot;:\\n    my_function()\\n```\\n\\n4. **Write docstrings** for modules, classes, and functions.\\n\\n5. **Keep functions small** and focused on a single task.\\n\\nME: That\\&amp;#x27;s really helpful! I\\&amp;#x27;m going to implement this structure. Oh, I just realized I don\\&amp;#x27;t remember how to create and update dictionaries in Python. Can you remind me?\\n\\nBUDDY: Sure thing! Here\\&amp;#x27;s a quick refresher on Python dictionaries:\\n\\n```python\\n# Creating dictionaries\\nempty_dict = {}  # Empty dictionary\\n\\nperson = {  # Dictionary with initial values\\n    &amp;quot;name&amp;quot;: &amp;quot;John&amp;quot;,\\n    &amp;quot;age&amp;quot;: 30,\\n    &amp;quot;city&amp;quot;: &amp;quot;New York&amp;quot;\\n}\\n\\n# Alternative creation using dict()\\nperson = dict(name=&amp;quot;John&amp;quot;, age=30, city=&amp;quot;New York&amp;quot;)\\n\\n# Accessing values\\nname = person[&amp;quot;name&amp;quot;]  # Using square brackets\\nage = person.get(&amp;quot;age&amp;quot;)  # Using get() method (safer, returns None if key doesn\\&amp;#x27;t exist)\\n\\n# Updating dictionaries\\nperson[&amp;quot;email&amp;quot;] = &amp;quot;john@example.com&amp;quot;  # Add new key-value pair\\nperson[&amp;quot;age&amp;quot;] = 31  # Update existing value\\n\\n# Update multiple values at once\\nperson.update({&amp;quot;age&amp;quot;: 32, &amp;quot;job&amp;quot;: &amp;quot;Developer&amp;quot;})\\n\\n# Removing items\\ndel person[&amp;quot;age&amp;quot;]  # Remove by key\\nemail = person.pop(&amp;quot;email&amp;quot;)  # Remove and return value\\n```\\n\\nME: Thanks! I always mix up the syntax. I\\&amp;#x27;m going to start implementing the CSV processing now. What\\&amp;#x27;s the best way to debug if I run into issues?\\n\\nBUDDY: For debugging in Python, you have several good options:\\n\\n1. **Flask\\&amp;#x27;s debug mode**: Just make sure you have:\\n```python\\nif __name__ == \\&amp;#x27;__main__\\&amp;#x27;:\\n    app.run(debug=True)\\n```\\n\\n2. **Print debugging**: The simplest approach:\\n```python\\nprint(f&amp;quot;Variable x = {x}&amp;quot;)\\n```\\n\\n3. **Using pdb**: Python\\&amp;#x27;s built-in debugger:\\n```python\\nimport pdb\\n\\ndef my_function():\\n    x = 5\\n    y = 0\\n    pdb.set_trace()  # Code will pause here\\n    result = x / y  # This will cause an error\\n```\\n\\n4. **Using breakpoint()**: In Python 3.7+:\\n```python\\ndef my_function():\\n    x = 5\\n    y = 0\\n    breakpoint()  # Equivalent to pdb.set_trace()\\n    result = x / y\\n```\\n\\n5. **Logging**: Better than print statements for production:\\n```python\\nimport logging\\n\\nlogging.basicConfig(level=logging.DEBUG)\\nlogger = logging.getLogger(__name__)\\n\\ndef divide(x, y):\\n    logger.debug(f&amp;quot;Dividing {x} by {y}&amp;quot;)\\n    try:\\n        result = x / y\\n        logger.debug(f&amp;quot;Result: {result}&amp;quot;)\\n        return result\\n    except ZeroDivisionError:\\n        logger.error(&amp;quot;Division by zero!&amp;quot;)\\n        return None\\n```\\n\\nME: Perfect! I think I\\&amp;#x27;ll use Flask\\&amp;#x27;s debug mode for now. One last thing - what\\&amp;#x27;s the best way to handle large CSV files that might not fit in memory?\\n\\nBUDDY: That\\&amp;#x27;s an important consideration! For large CSV files, you have several options:\\n\\n1. **Chunked processing with pandas**:\\n```python\\nchunk_size = 10000  # Adjust based on your memory constraints\\nfor chunk in pd.read_csv(filepath, chunksize=chunk_size):\\n    # Process each chunk\\n    process_chunk(chunk)\\n```\\n\\n2. **Stream processing with CSV module**:\\n```python\\nimport csv\\n\\nwith open(filepath, \\&amp;#x27;r\\&amp;#x27;) as f:\\n    csv_reader = csv.reader(f)\\n    headers = next(csv_reader)  # Get headers\\n    \\n    for row in csv_reader:\\n        # Process one row at a time\\n        process_row(row)\\n```\\n\\n3. **Database approach**: Load the CSV into a database and process with SQL:\\n```python\\nimport sqlite3\\n\\n# Create a temporary database\\nconn = sqlite3.connect(\\&amp;#x27;:memory:\\&amp;#x27;)\\n\\n# Create table and import data in chunks\\nfor chunk in pd.read_csv(filepath, chunksize=10000):\\n    chunk.to_sql(\\&amp;#x27;data\\&amp;#x27;, conn, if_exists=\\&amp;#x27;append\\&amp;#x27;, index=False)\\n\\n# Use SQL to process the data\\nresult = pd.read_sql(\\&amp;#x27;SELECT * FROM data LIMIT 10\\&amp;#x27;, conn)\\n```\\n\\nME: That\\&amp;#x27;s super helpful! I think I\\&amp;#x27;ll go with the chunked processing approach. Thanks for all your help today!\\n\\nBUDDY: No problem! Good luck with your Flask app. Remember to take breaks and be kind to yourself - coding with ADHD can be challenging, but you\\&amp;#x27;re doing great!\\n\\nME: Thanks! I\\&amp;#x27;ll let you know how it goes.\\n&amp;#x27;\ntest_data_dir: &amp;#x27;C:\\\\Users\\\\washy\\\\workspace\\\\conversation_memory_test\\\\tests\\\\data&amp;#x27;&#34;}], &#34;tests/test_topic_extractor.py::test_extract_topics_basic&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_topic_extractor.py::test_extract_topics_basic&#34;, &#34;duration&#34;: &#34;97 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_topic_extractor.py::test_extract_topics_basic&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;97 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stdout setup -----------------------------\n\n================================================================================\nRUNNING TEST: test_extract_topics_basic\n--------------------------------------------------------------------------------\n\n----------------------------- Captured stderr call -----------------------------\nINFO: Testing basic topic extraction from mixed conversation\nINFO: Found 5 topic categories\nINFO: Checking that &amp;#x27;Python Syntax&amp;#x27; is one of the categories\nINFO: Checking that &amp;#x27;ADHD &amp;amp; Productivity&amp;#x27; is one of the categories\nINFO: Checking that &amp;#x27;Web Development&amp;#x27; is one of the categories\nINFO: \u2705 Successfully extracted topics from mixed conversation\n\n------------------------------ Captured log call -------------------------------\nINFO     tests.test_topic_extractor:test_topic_extractor.py:91 Testing basic topic extraction from mixed conversation\nINFO     tests.test_topic_extractor:test_topic_extractor.py:97 Found 5 topic categories\nINFO     tests.test_topic_extractor:test_topic_extractor.py:101 Checking that &amp;#x27;Python Syntax&amp;#x27; is one of the categories\nINFO     tests.test_topic_extractor:test_topic_extractor.py:105 Checking that &amp;#x27;ADHD &amp;amp; Productivity&amp;#x27; is one of the categories\nINFO     tests.test_topic_extractor:test_topic_extractor.py:109 Checking that &amp;#x27;Web Development&amp;#x27; is one of the categories\nINFO     tests.test_topic_extractor:test_topic_extractor.py:112 \u2705 Successfully extracted topics from mixed conversation\n\n\n------------------------------- Test Description -------------------------------\nFEATURE: Topic extraction from mixed conversation\n\nTest that we can extract and categorize topics from a mixed conversation.\n------------------------------- Test Parameters --------------------------------\nmixed_conversation: &amp;#x27;USER: I\\&amp;#x27;m having trouble remembering Python dictionary syntax. What\\&amp;#x27;s the best way to create and update dictionaries?\\n\\nA: Python dictionaries are super useful! Here\\&amp;#x27;s a refresher on dictionary syntax:\\n\\n### Creating Dictionaries\\n\\n1. **Empty dictionary**:\\n```python\\nmy_dict = {}\\n```\\n\\n2. **Dictionary with initial values**:\\n```python\\nperson = {\\n    &amp;quot;name&amp;quot;: &amp;quot;John&amp;quot;,\\n    &amp;quot;age&amp;quot;: 30,\\n    &amp;quot;city&amp;quot;: &amp;quot;New York&amp;quot;\\n}\\n```\\n\\nUSER: Sorry, I got distracted. I have ADHD and sometimes struggle to focus on coding tasks. Do you have any tips for staying focused while coding?\\n\\nA: I completely understand! Many developers with ADHD find coding both rewarding and challenging. Here are some strategies that might help:\\n\\n1. **Use the Pomodoro Technique**: Work for 25 minutes, then take a 5-minute break. After 4 cycles, take a longer break (15-30 minutes).\\n\\n2. **Body Doubling**: Code with someone else (in person or virtually). Having someone else working alongside you can help maintain focus.\\n\\nUSER: Thanks for the tips! Now, what\\&amp;#x27;s the best way to handle file uploads in Flask?\\n\\nA: Handling file uploads in Flask is straightforward. Here\\&amp;#x27;s how to implement it:\\n\\nIn your app.py file:\\n```python\\nimport os\\nfrom flask import Flask, request, render_template, redirect, url_for\\nimport pandas as pd\\n\\napp = Flask(__name__)\\napp.config[\\&amp;#x27;UPLOAD_FOLDER\\&amp;#x27;] = \\&amp;#x27;uploads\\&amp;#x27;\\napp.config[\\&amp;#x27;ALLOWED_EXTENSIONS\\&amp;#x27;] = {\\&amp;#x27;csv\\&amp;#x27;}\\n```&amp;#x27;&#34;}], &#34;tests/test_topic_extractor.py::test_extract_topics_custom_categories&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_topic_extractor.py::test_extract_topics_custom_categories&#34;, &#34;duration&#34;: &#34;98 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_topic_extractor.py::test_extract_topics_custom_categories&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;98 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stdout setup -----------------------------\n\n================================================================================\nRUNNING TEST: test_extract_topics_custom_categories\n--------------------------------------------------------------------------------\n\n----------------------------- Captured stderr call -----------------------------\nINFO: Testing topic extraction with custom categories\nINFO: Found 4 custom topic categories\nINFO: Checking that &amp;#x27;Python Data Structures&amp;#x27; is one of the categories\nINFO: Checking that &amp;#x27;Mental Health&amp;#x27; is one of the categories\nINFO: Checking that &amp;#x27;Web Frameworks&amp;#x27; is one of the categories\nINFO: \u2705 Successfully extracted topics with custom categories\n\n------------------------------ Captured log call -------------------------------\nINFO     tests.test_topic_extractor:test_topic_extractor.py:121 Testing topic extraction with custom categories\nINFO     tests.test_topic_extractor:test_topic_extractor.py:138 Found 4 custom topic categories\nINFO     tests.test_topic_extractor:test_topic_extractor.py:141 Checking that &amp;#x27;Python Data Structures&amp;#x27; is one of the categories\nINFO     tests.test_topic_extractor:test_topic_extractor.py:145 Checking that &amp;#x27;Mental Health&amp;#x27; is one of the categories\nINFO     tests.test_topic_extractor:test_topic_extractor.py:149 Checking that &amp;#x27;Web Frameworks&amp;#x27; is one of the categories\nINFO     tests.test_topic_extractor:test_topic_extractor.py:152 \u2705 Successfully extracted topics with custom categories\n\n\n------------------------------- Test Description -------------------------------\nFEATURE: Custom topic categories\n\nTest that we can use custom topic categories for extraction.\n------------------------------- Test Parameters --------------------------------\nmixed_conversation: &amp;#x27;USER: I\\&amp;#x27;m having trouble remembering Python dictionary syntax. What\\&amp;#x27;s the best way to create and update dictionaries?\\n\\nA: Python dictionaries are super useful! Here\\&amp;#x27;s a refresher on dictionary syntax:\\n\\n### Creating Dictionaries\\n\\n1. **Empty dictionary**:\\n```python\\nmy_dict = {}\\n```\\n\\n2. **Dictionary with initial values**:\\n```python\\nperson = {\\n    &amp;quot;name&amp;quot;: &amp;quot;John&amp;quot;,\\n    &amp;quot;age&amp;quot;: 30,\\n    &amp;quot;city&amp;quot;: &amp;quot;New York&amp;quot;\\n}\\n```\\n\\nUSER: Sorry, I got distracted. I have ADHD and sometimes struggle to focus on coding tasks. Do you have any tips for staying focused while coding?\\n\\nA: I completely understand! Many developers with ADHD find coding both rewarding and challenging. Here are some strategies that might help:\\n\\n1. **Use the Pomodoro Technique**: Work for 25 minutes, then take a 5-minute break. After 4 cycles, take a longer break (15-30 minutes).\\n\\n2. **Body Doubling**: Code with someone else (in person or virtually). Having someone else working alongside you can help maintain focus.\\n\\nUSER: Thanks for the tips! Now, what\\&amp;#x27;s the best way to handle file uploads in Flask?\\n\\nA: Handling file uploads in Flask is straightforward. Here\\&amp;#x27;s how to implement it:\\n\\nIn your app.py file:\\n```python\\nimport os\\nfrom flask import Flask, request, render_template, redirect, url_for\\nimport pandas as pd\\n\\napp = Flask(__name__)\\napp.config[\\&amp;#x27;UPLOAD_FOLDER\\&amp;#x27;] = \\&amp;#x27;uploads\\&amp;#x27;\\napp.config[\\&amp;#x27;ALLOWED_EXTENSIONS\\&amp;#x27;] = {\\&amp;#x27;csv\\&amp;#x27;}\\n```&amp;#x27;&#34;}], &#34;tests/test_topic_extractor.py::test_extract_topics_context_size&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_topic_extractor.py::test_extract_topics_context_size&#34;, &#34;duration&#34;: &#34;193 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_topic_extractor.py::test_extract_topics_context_size&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;193 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stdout setup -----------------------------\n\n================================================================================\nRUNNING TEST: test_extract_topics_context_size\n--------------------------------------------------------------------------------\n\n----------------------------- Captured stderr call -----------------------------\nINFO: Testing different context sizes in topic extraction\nINFO: Context size 1: 5 categories\nINFO: Context size 3: 5 categories\nINFO: Context size 1: 2 lines in first match\nINFO: Context size 3: 4 lines in first match\nINFO: \u2705 Successfully handled different context sizes in topic extraction\n\n------------------------------ Captured log call -------------------------------\nINFO     tests.test_topic_extractor:test_topic_extractor.py:161 Testing different context sizes in topic extraction\nINFO     tests.test_topic_extractor:test_topic_extractor.py:168 Context size 1: 5 categories\nINFO     tests.test_topic_extractor:test_topic_extractor.py:169 Context size 3: 5 categories\nINFO     tests.test_topic_extractor:test_topic_extractor.py:177 Context size 1: 2 lines in first match\nINFO     tests.test_topic_extractor:test_topic_extractor.py:178 Context size 3: 4 lines in first match\nINFO     tests.test_topic_extractor:test_topic_extractor.py:181 \u2705 Successfully handled different context sizes in topic extraction\n\n\n------------------------------- Test Description -------------------------------\nFEATURE: Context size in topic extraction\n\nTest that different context sizes work correctly in topic extraction.\n------------------------------- Test Parameters --------------------------------\nmixed_conversation: &amp;#x27;USER: I\\&amp;#x27;m having trouble remembering Python dictionary syntax. What\\&amp;#x27;s the best way to create and update dictionaries?\\n\\nA: Python dictionaries are super useful! Here\\&amp;#x27;s a refresher on dictionary syntax:\\n\\n### Creating Dictionaries\\n\\n1. **Empty dictionary**:\\n```python\\nmy_dict = {}\\n```\\n\\n2. **Dictionary with initial values**:\\n```python\\nperson = {\\n    &amp;quot;name&amp;quot;: &amp;quot;John&amp;quot;,\\n    &amp;quot;age&amp;quot;: 30,\\n    &amp;quot;city&amp;quot;: &amp;quot;New York&amp;quot;\\n}\\n```\\n\\nUSER: Sorry, I got distracted. I have ADHD and sometimes struggle to focus on coding tasks. Do you have any tips for staying focused while coding?\\n\\nA: I completely understand! Many developers with ADHD find coding both rewarding and challenging. Here are some strategies that might help:\\n\\n1. **Use the Pomodoro Technique**: Work for 25 minutes, then take a 5-minute break. After 4 cycles, take a longer break (15-30 minutes).\\n\\n2. **Body Doubling**: Code with someone else (in person or virtually). Having someone else working alongside you can help maintain focus.\\n\\nUSER: Thanks for the tips! Now, what\\&amp;#x27;s the best way to handle file uploads in Flask?\\n\\nA: Handling file uploads in Flask is straightforward. Here\\&amp;#x27;s how to implement it:\\n\\nIn your app.py file:\\n```python\\nimport os\\nfrom flask import Flask, request, render_template, redirect, url_for\\nimport pandas as pd\\n\\napp = Flask(__name__)\\napp.config[\\&amp;#x27;UPLOAD_FOLDER\\&amp;#x27;] = \\&amp;#x27;uploads\\&amp;#x27;\\napp.config[\\&amp;#x27;ALLOWED_EXTENSIONS\\&amp;#x27;] = {\\&amp;#x27;csv\\&amp;#x27;}\\n```&amp;#x27;&#34;}], &#34;tests/test_topic_extractor.py::test_extract_topics_from_file&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_topic_extractor.py::test_extract_topics_from_file&#34;, &#34;duration&#34;: &#34;106 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_topic_extractor.py::test_extract_topics_from_file&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;106 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stdout setup -----------------------------\n\n================================================================================\nRUNNING TEST: test_extract_topics_from_file\n--------------------------------------------------------------------------------\n\n----------------------------- Captured stderr call -----------------------------\nINFO: Testing topic extraction from file: C:\\Users\\washy\\AppData\\Local\\Temp\\pytest-of-washy\\pytest-19\\test_extract_topics_from_file0\\test_mixed_conversation.txt\nINFO: Found 5 topic categories\nINFO: Category &amp;#x27;Python Syntax&amp;#x27; has 9 matches\nINFO: Category &amp;#x27;Web Development&amp;#x27; has 5 matches\nINFO: Category &amp;#x27;Data Processing&amp;#x27; has 2 matches\nINFO: Category &amp;#x27;ADHD &amp;amp; Productivity&amp;#x27; has 6 matches\nINFO: Category &amp;#x27;Dynamic Topics&amp;#x27; has 7 matches\nINFO: \u2705 Successfully extracted topics from file\n\n------------------------------ Captured log call -------------------------------\nINFO     tests.test_topic_extractor:test_topic_extractor.py:190 Testing topic extraction from file: C:\\Users\\washy\\AppData\\Local\\Temp\\pytest-of-washy\\pytest-19\\test_extract_topics_from_file0\\test_mixed_conversation.txt\nINFO     tests.test_topic_extractor:test_topic_extractor.py:197 Found 5 topic categories\nINFO     tests.test_topic_extractor:test_topic_extractor.py:202 Category &amp;#x27;Python Syntax&amp;#x27; has 9 matches\nINFO     tests.test_topic_extractor:test_topic_extractor.py:202 Category &amp;#x27;Web Development&amp;#x27; has 5 matches\nINFO     tests.test_topic_extractor:test_topic_extractor.py:202 Category &amp;#x27;Data Processing&amp;#x27; has 2 matches\nINFO     tests.test_topic_extractor:test_topic_extractor.py:202 Category &amp;#x27;ADHD &amp;amp; Productivity&amp;#x27; has 6 matches\nINFO     tests.test_topic_extractor:test_topic_extractor.py:202 Category &amp;#x27;Dynamic Topics&amp;#x27; has 7 matches\nINFO     tests.test_topic_extractor:test_topic_extractor.py:205 \u2705 Successfully extracted topics from file\n\n\n------------------------------- Test Description -------------------------------\nFEATURE: Topic extraction from file\n\nTest the full workflow from loading a file to extracting topics.\n------------------------------- Test Parameters --------------------------------\ntmp_path_factory: TempPathFactory(_given_basetemp=None, _trace=&amp;lt;pluggy._tracing.TagTracerSub object at 0x000001FC82712C40&amp;gt;, _basetemp=WindowsPath(&amp;#x27;C:/Users/washy/AppData/Local/Temp/pytest-of-washy/pytest-19&amp;#x27;), _retention_count=3, _retention_policy=&amp;#x27;all&amp;#x27;)\nsample_file: WindowsPath(&amp;#x27;C:/Users/washy/AppData/Local/Temp/pytest-of-washy/pytest-19/test_extract_topics_from_file0/test_mixed_conversation.txt&amp;#x27;)\ntmp_path: WindowsPath(&amp;#x27;C:/Users/washy/AppData/Local/Temp/pytest-of-washy/pytest-19/test_extract_topics_from_file0&amp;#x27;)\nmixed_conversation: &amp;#x27;USER: I\\&amp;#x27;m having trouble remembering Python dictionary syntax. What\\&amp;#x27;s the best way to create and update dictionaries?\\n\\nA: Python dictionaries are super useful! Here\\&amp;#x27;s a refresher on dictionary syntax:\\n\\n### Creating Dictionaries\\n\\n1. **Empty dictionary**:\\n```python\\nmy_dict = {}\\n```\\n\\n2. **Dictionary with initial values**:\\n```python\\nperson = {\\n    &amp;quot;name&amp;quot;: &amp;quot;John&amp;quot;,\\n    &amp;quot;age&amp;quot;: 30,\\n    &amp;quot;city&amp;quot;: &amp;quot;New York&amp;quot;\\n}\\n```\\n\\nUSER: Sorry, I got distracted. I have ADHD and sometimes struggle to focus on coding tasks. Do you have any tips for staying focused while coding?\\n\\nA: I completely understand! Many developers with ADHD find coding both rewarding and challenging. Here are some strategies that might help:\\n\\n1. **Use the Pomodoro Technique**: Work for 25 minutes, then take a 5-minute break. After 4 cycles, take a longer break (15-30 minutes).\\n\\n2. **Body Doubling**: Code with someone else (in person or virtually). Having someone else working alongside you can help maintain focus.\\n\\nUSER: Thanks for the tips! Now, what\\&amp;#x27;s the best way to handle file uploads in Flask?\\n\\nA: Handling file uploads in Flask is straightforward. Here\\&amp;#x27;s how to implement it:\\n\\nIn your app.py file:\\n```python\\nimport os\\nfrom flask import Flask, request, render_template, redirect, url_for\\nimport pandas as pd\\n\\napp = Flask(__name__)\\napp.config[\\&amp;#x27;UPLOAD_FOLDER\\&amp;#x27;] = \\&amp;#x27;uploads\\&amp;#x27;\\napp.config[\\&amp;#x27;ALLOWED_EXTENSIONS\\&amp;#x27;] = {\\&amp;#x27;csv\\&amp;#x27;}\\n```&amp;#x27;&#34;}], &#34;tests/test_topic_extractor.py::test_topic_categorization&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_topic_extractor.py::test_topic_categorization&#34;, &#34;duration&#34;: &#34;96 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_topic_extractor.py::test_topic_categorization&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;96 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stdout setup -----------------------------\n\n================================================================================\nRUNNING TEST: test_topic_categorization\n--------------------------------------------------------------------------------\n\n----------------------------- Captured stderr call -----------------------------\nINFO: Testing correct topic categorization\nINFO: Python Syntax keywords found: [&amp;#x27;syntax&amp;#x27;, &amp;#x27;syntax&amp;#x27;, &amp;#x27;dictionary&amp;#x27;, &amp;#x27;dictionary&amp;#x27;, &amp;#x27;dictionary&amp;#x27;, &amp;#x27;dictionary&amp;#x27;, &amp;#x27;import&amp;#x27;, &amp;#x27;import&amp;#x27;, &amp;#x27;import&amp;#x27;]\nINFO: ADHD &amp;amp; Productivity keywords found: [&amp;#x27;ADHD&amp;#x27;, &amp;#x27;ADHD&amp;#x27;, &amp;#x27;focus&amp;#x27;, &amp;#x27;focus&amp;#x27;, &amp;#x27;Pomodoro&amp;#x27;, &amp;#x27;break&amp;#x27;]\nINFO: Web Development keywords found: [&amp;#x27;Flask&amp;#x27;, &amp;#x27;Flask&amp;#x27;, &amp;#x27;Flask&amp;#x27;, &amp;#x27;Flask&amp;#x27;, &amp;#x27;request&amp;#x27;]\nINFO: \u2705 Successfully verified correct topic categorization\n\n------------------------------ Captured log call -------------------------------\nINFO     tests.test_topic_extractor:test_topic_extractor.py:214 Testing correct topic categorization\nINFO     tests.test_topic_extractor:test_topic_extractor.py:222 Python Syntax keywords found: [&amp;#x27;syntax&amp;#x27;, &amp;#x27;syntax&amp;#x27;, &amp;#x27;dictionary&amp;#x27;, &amp;#x27;dictionary&amp;#x27;, &amp;#x27;dictionary&amp;#x27;, &amp;#x27;dictionary&amp;#x27;, &amp;#x27;import&amp;#x27;, &amp;#x27;import&amp;#x27;, &amp;#x27;import&amp;#x27;]\nINFO     tests.test_topic_extractor:test_topic_extractor.py:229 ADHD &amp;amp; Productivity keywords found: [&amp;#x27;ADHD&amp;#x27;, &amp;#x27;ADHD&amp;#x27;, &amp;#x27;focus&amp;#x27;, &amp;#x27;focus&amp;#x27;, &amp;#x27;Pomodoro&amp;#x27;, &amp;#x27;break&amp;#x27;]\nINFO     tests.test_topic_extractor:test_topic_extractor.py:236 Web Development keywords found: [&amp;#x27;Flask&amp;#x27;, &amp;#x27;Flask&amp;#x27;, &amp;#x27;Flask&amp;#x27;, &amp;#x27;Flask&amp;#x27;, &amp;#x27;request&amp;#x27;]\nINFO     tests.test_topic_extractor:test_topic_extractor.py:240 \u2705 Successfully verified correct topic categorization\n\n\n------------------------------- Test Description -------------------------------\nFEATURE: Correct topic categorization\n\nTest that topics are correctly categorized based on their content.\n------------------------------- Test Parameters --------------------------------\nmixed_conversation: &amp;#x27;USER: I\\&amp;#x27;m having trouble remembering Python dictionary syntax. What\\&amp;#x27;s the best way to create and update dictionaries?\\n\\nA: Python dictionaries are super useful! Here\\&amp;#x27;s a refresher on dictionary syntax:\\n\\n### Creating Dictionaries\\n\\n1. **Empty dictionary**:\\n```python\\nmy_dict = {}\\n```\\n\\n2. **Dictionary with initial values**:\\n```python\\nperson = {\\n    &amp;quot;name&amp;quot;: &amp;quot;John&amp;quot;,\\n    &amp;quot;age&amp;quot;: 30,\\n    &amp;quot;city&amp;quot;: &amp;quot;New York&amp;quot;\\n}\\n```\\n\\nUSER: Sorry, I got distracted. I have ADHD and sometimes struggle to focus on coding tasks. Do you have any tips for staying focused while coding?\\n\\nA: I completely understand! Many developers with ADHD find coding both rewarding and challenging. Here are some strategies that might help:\\n\\n1. **Use the Pomodoro Technique**: Work for 25 minutes, then take a 5-minute break. After 4 cycles, take a longer break (15-30 minutes).\\n\\n2. **Body Doubling**: Code with someone else (in person or virtually). Having someone else working alongside you can help maintain focus.\\n\\nUSER: Thanks for the tips! Now, what\\&amp;#x27;s the best way to handle file uploads in Flask?\\n\\nA: Handling file uploads in Flask is straightforward. Here\\&amp;#x27;s how to implement it:\\n\\nIn your app.py file:\\n```python\\nimport os\\nfrom flask import Flask, request, render_template, redirect, url_for\\nimport pandas as pd\\n\\napp = Flask(__name__)\\napp.config[\\&amp;#x27;UPLOAD_FOLDER\\&amp;#x27;] = \\&amp;#x27;uploads\\&amp;#x27;\\napp.config[\\&amp;#x27;ALLOWED_EXTENSIONS\\&amp;#x27;] = {\\&amp;#x27;csv\\&amp;#x27;}\\n```&amp;#x27;&#34;}]}, &#34;renderCollapsed&#34;: [&#34;passed&#34;], &#34;initialSort&#34;: &#34;result&#34;, &#34;title&#34;: &#34;test-report.html&#34;}"></div>
+    <script>
+      (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+const { getCollapsedCategory, setCollapsedIds } = require('./storage.js')
+
+class DataManager {
+    setManager(data) {
+        const collapsedCategories = [...getCollapsedCategory(data.renderCollapsed)]
+        const collapsedIds = []
+        const tests = Object.values(data.tests).flat().map((test, index) => {
+            const collapsed = collapsedCategories.includes(test.result.toLowerCase())
+            const id = `test_${index}`
+            if (collapsed) {
+                collapsedIds.push(id)
+            }
+            return {
+                ...test,
+                id,
+                collapsed,
+            }
+        })
+        const dataBlob = { ...data, tests }
+        this.data = { ...dataBlob }
+        this.renderData = { ...dataBlob }
+        setCollapsedIds(collapsedIds)
+    }
+
+    get allData() {
+        return { ...this.data }
+    }
+
+    resetRender() {
+        this.renderData = { ...this.data }
+    }
+
+    setRender(data) {
+        this.renderData.tests = [...data]
+    }
+
+    toggleCollapsedItem(id) {
+        this.renderData.tests = this.renderData.tests.map((test) =>
+            test.id === id ? { ...test, collapsed: !test.collapsed } : test,
+        )
+    }
+
+    set allCollapsed(collapsed) {
+        this.renderData = { ...this.renderData, tests: [...this.renderData.tests.map((test) => (
+            { ...test, collapsed }
+        ))] }
+    }
+
+    get testSubset() {
+        return [...this.renderData.tests]
+    }
+
+    get environment() {
+        return this.renderData.environment
+    }
+
+    get initialSort() {
+        return this.data.initialSort
+    }
+}
+
+module.exports = {
+    manager: new DataManager(),
+}
+
+},{"./storage.js":8}],2:[function(require,module,exports){
+const mediaViewer = require('./mediaviewer.js')
+const templateEnvRow = document.getElementById('template_environment_row')
+const templateResult = document.getElementById('template_results-table__tbody')
+
+function htmlToElements(html) {
+    const temp = document.createElement('template')
+    temp.innerHTML = html
+    return temp.content.childNodes
+}
+
+const find = (selector, elem) => {
+    if (!elem) {
+        elem = document
+    }
+    return elem.querySelector(selector)
+}
+
+const findAll = (selector, elem) => {
+    if (!elem) {
+        elem = document
+    }
+    return [...elem.querySelectorAll(selector)]
+}
+
+const dom = {
+    getStaticRow: (key, value) => {
+        const envRow = templateEnvRow.content.cloneNode(true)
+        const isObj = typeof value === 'object' && value !== null
+        const values = isObj ? Object.keys(value).map((k) => `${k}: ${value[k]}`) : null
+
+        const valuesElement = htmlToElements(
+            values ? `<ul>${values.map((val) => `<li>${val}</li>`).join('')}<ul>` : `<div>${value}</div>`)[0]
+        const td = findAll('td', envRow)
+        td[0].textContent = key
+        td[1].appendChild(valuesElement)
+
+        return envRow
+    },
+    getResultTBody: ({ testId, id, log, extras, resultsTableRow, tableHtml, result, collapsed }) => {
+        const resultBody = templateResult.content.cloneNode(true)
+        resultBody.querySelector('tbody').classList.add(result.toLowerCase())
+        resultBody.querySelector('tbody').id = testId
+        resultBody.querySelector('.collapsible').dataset.id = id
+
+        resultsTableRow.forEach((html) => {
+            const t = document.createElement('template')
+            t.innerHTML = html
+            resultBody.querySelector('.collapsible').appendChild(t.content)
+        })
+
+        if (log) {
+            // Wrap lines starting with "E" with span.error to color those lines red
+            const wrappedLog = log.replace(/^E.*$/gm, (match) => `<span class="error">${match}</span>`)
+            resultBody.querySelector('.log').innerHTML = wrappedLog
+        } else {
+            resultBody.querySelector('.log').remove()
+        }
+
+        if (collapsed) {
+            resultBody.querySelector('.collapsible > td')?.classList.add('collapsed')
+            resultBody.querySelector('.extras-row').classList.add('hidden')
+        } else {
+            resultBody.querySelector('.collapsible > td')?.classList.remove('collapsed')
+        }
+
+        const media = []
+        extras?.forEach(({ name, format_type, content }) => {
+            if (['image', 'video'].includes(format_type)) {
+                media.push({ path: content, name, format_type })
+            }
+
+            if (format_type === 'html') {
+                resultBody.querySelector('.extraHTML').insertAdjacentHTML('beforeend', `<div>${content}</div>`)
+            }
+        })
+        mediaViewer.setup(resultBody, media)
+
+        // Add custom html from the pytest_html_results_table_html hook
+        tableHtml?.forEach((item) => {
+            resultBody.querySelector('td[class="extra"]').insertAdjacentHTML('beforeend', item)
+        })
+
+        return resultBody
+    },
+}
+
+module.exports = {
+    dom,
+    htmlToElements,
+    find,
+    findAll,
+}
+
+},{"./mediaviewer.js":6}],3:[function(require,module,exports){
+const { manager } = require('./datamanager.js')
+const { doSort } = require('./sort.js')
+const storageModule = require('./storage.js')
+
+const getFilteredSubSet = (filter) =>
+    manager.allData.tests.filter(({ result }) => filter.includes(result.toLowerCase()))
+
+const doInitFilter = () => {
+    const currentFilter = storageModule.getVisible()
+    const filteredSubset = getFilteredSubSet(currentFilter)
+    manager.setRender(filteredSubset)
+}
+
+const doFilter = (type, show) => {
+    if (show) {
+        storageModule.showCategory(type)
+    } else {
+        storageModule.hideCategory(type)
+    }
+
+    const currentFilter = storageModule.getVisible()
+    const filteredSubset = getFilteredSubSet(currentFilter)
+    manager.setRender(filteredSubset)
+
+    const sortColumn = storageModule.getSort()
+    doSort(sortColumn, true)
+}
+
+module.exports = {
+    doFilter,
+    doInitFilter,
+}
+
+},{"./datamanager.js":1,"./sort.js":7,"./storage.js":8}],4:[function(require,module,exports){
+const { redraw, bindEvents, renderStatic } = require('./main.js')
+const { doInitFilter } = require('./filter.js')
+const { doInitSort } = require('./sort.js')
+const { manager } = require('./datamanager.js')
+const data = JSON.parse(document.getElementById('data-container').dataset.jsonblob)
+
+function init() {
+    manager.setManager(data)
+    doInitFilter()
+    doInitSort()
+    renderStatic()
+    redraw()
+    bindEvents()
+}
+
+init()
+
+},{"./datamanager.js":1,"./filter.js":3,"./main.js":5,"./sort.js":7}],5:[function(require,module,exports){
+const { dom, find, findAll } = require('./dom.js')
+const { manager } = require('./datamanager.js')
+const { doSort } = require('./sort.js')
+const { doFilter } = require('./filter.js')
+const {
+    getVisible,
+    getCollapsedIds,
+    setCollapsedIds,
+    getSort,
+    getSortDirection,
+    possibleFilters,
+} = require('./storage.js')
+
+const removeChildren = (node) => {
+    while (node.firstChild) {
+        node.removeChild(node.firstChild)
+    }
+}
+
+const renderStatic = () => {
+    const renderEnvironmentTable = () => {
+        const environment = manager.environment
+        const rows = Object.keys(environment).map((key) => dom.getStaticRow(key, environment[key]))
+        const table = document.getElementById('environment')
+        removeChildren(table)
+        rows.forEach((row) => table.appendChild(row))
+    }
+    renderEnvironmentTable()
+}
+
+const addItemToggleListener = (elem) => {
+    elem.addEventListener('click', ({ target }) => {
+        const id = target.parentElement.dataset.id
+        manager.toggleCollapsedItem(id)
+
+        const collapsedIds = getCollapsedIds()
+        if (collapsedIds.includes(id)) {
+            const updated = collapsedIds.filter((item) => item !== id)
+            setCollapsedIds(updated)
+        } else {
+            collapsedIds.push(id)
+            setCollapsedIds(collapsedIds)
+        }
+        redraw()
+    })
+}
+
+const renderContent = (tests) => {
+    const sortAttr = getSort(manager.initialSort)
+    const sortAsc = JSON.parse(getSortDirection())
+    const rows = tests.map(dom.getResultTBody)
+    const table = document.getElementById('results-table')
+    const tableHeader = document.getElementById('results-table-head')
+
+    const newTable = document.createElement('table')
+    newTable.id = 'results-table'
+
+    // remove all sorting classes and set the relevant
+    findAll('.sortable', tableHeader).forEach((elem) => elem.classList.remove('asc', 'desc'))
+    tableHeader.querySelector(`.sortable[data-column-type="${sortAttr}"]`)?.classList.add(sortAsc ? 'desc' : 'asc')
+    newTable.appendChild(tableHeader)
+
+    if (!rows.length) {
+        const emptyTable = document.getElementById('template_results-table__body--empty').content.cloneNode(true)
+        newTable.appendChild(emptyTable)
+    } else {
+        rows.forEach((row) => {
+            if (!!row) {
+                findAll('.collapsible td:not(.col-links', row).forEach(addItemToggleListener)
+                find('.logexpander', row).addEventListener('click',
+                    (evt) => evt.target.parentNode.classList.toggle('expanded'),
+                )
+                newTable.appendChild(row)
+            }
+        })
+    }
+
+    table.replaceWith(newTable)
+}
+
+const renderDerived = () => {
+    const currentFilter = getVisible()
+    possibleFilters.forEach((result) => {
+        const input = document.querySelector(`input[data-test-result="${result}"]`)
+        input.checked = currentFilter.includes(result)
+    })
+}
+
+const bindEvents = () => {
+    const filterColumn = (evt) => {
+        const { target: element } = evt
+        const { testResult } = element.dataset
+
+        doFilter(testResult, element.checked)
+        const collapsedIds = getCollapsedIds()
+        const updated = manager.renderData.tests.map((test) => {
+            return {
+                ...test,
+                collapsed: collapsedIds.includes(test.id),
+            }
+        })
+        manager.setRender(updated)
+        redraw()
+    }
+
+    const header = document.getElementById('environment-header')
+    header.addEventListener('click', () => {
+        const table = document.getElementById('environment')
+        table.classList.toggle('hidden')
+        header.classList.toggle('collapsed')
+    })
+
+    findAll('input[name="filter_checkbox"]').forEach((elem) => {
+        elem.addEventListener('click', filterColumn)
+    })
+
+    findAll('.sortable').forEach((elem) => {
+        elem.addEventListener('click', (evt) => {
+            const { target: element } = evt
+            const { columnType } = element.dataset
+            doSort(columnType)
+            redraw()
+        })
+    })
+
+    document.getElementById('show_all_details').addEventListener('click', () => {
+        manager.allCollapsed = false
+        setCollapsedIds([])
+        redraw()
+    })
+    document.getElementById('hide_all_details').addEventListener('click', () => {
+        manager.allCollapsed = true
+        const allIds = manager.renderData.tests.map((test) => test.id)
+        setCollapsedIds(allIds)
+        redraw()
+    })
+}
+
+const redraw = () => {
+    const { testSubset } = manager
+
+    renderContent(testSubset)
+    renderDerived()
+}
+
+module.exports = {
+    redraw,
+    bindEvents,
+    renderStatic,
+}
+
+},{"./datamanager.js":1,"./dom.js":2,"./filter.js":3,"./sort.js":7,"./storage.js":8}],6:[function(require,module,exports){
+class MediaViewer {
+    constructor(assets) {
+        this.assets = assets
+        this.index = 0
+    }
+
+    nextActive() {
+        this.index = this.index === this.assets.length - 1 ? 0 : this.index + 1
+        return [this.activeFile, this.index]
+    }
+
+    prevActive() {
+        this.index = this.index === 0 ? this.assets.length - 1 : this.index -1
+        return [this.activeFile, this.index]
+    }
+
+    get currentIndex() {
+        return this.index
+    }
+
+    get activeFile() {
+        return this.assets[this.index]
+    }
+}
+
+
+const setup = (resultBody, assets) => {
+    if (!assets.length) {
+        resultBody.querySelector('.media').classList.add('hidden')
+        return
+    }
+
+    const mediaViewer = new MediaViewer(assets)
+    const container = resultBody.querySelector('.media-container')
+    const leftArrow = resultBody.querySelector('.media-container__nav--left')
+    const rightArrow = resultBody.querySelector('.media-container__nav--right')
+    const mediaName = resultBody.querySelector('.media__name')
+    const counter = resultBody.querySelector('.media__counter')
+    const imageEl = resultBody.querySelector('img')
+    const sourceEl = resultBody.querySelector('source')
+    const videoEl = resultBody.querySelector('video')
+
+    const setImg = (media, index) => {
+        if (media?.format_type === 'image') {
+            imageEl.src = media.path
+
+            imageEl.classList.remove('hidden')
+            videoEl.classList.add('hidden')
+        } else if (media?.format_type === 'video') {
+            sourceEl.src = media.path
+
+            videoEl.classList.remove('hidden')
+            imageEl.classList.add('hidden')
+        }
+
+        mediaName.innerText = media?.name
+        counter.innerText = `${index + 1} / ${assets.length}`
+    }
+    setImg(mediaViewer.activeFile, mediaViewer.currentIndex)
+
+    const moveLeft = () => {
+        const [media, index] = mediaViewer.prevActive()
+        setImg(media, index)
+    }
+    const doRight = () => {
+        const [media, index] = mediaViewer.nextActive()
+        setImg(media, index)
+    }
+    const openImg = () => {
+        window.open(mediaViewer.activeFile.path, '_blank')
+    }
+    if (assets.length === 1) {
+        container.classList.add('media-container--fullscreen')
+    } else {
+        leftArrow.addEventListener('click', moveLeft)
+        rightArrow.addEventListener('click', doRight)
+    }
+    imageEl.addEventListener('click', openImg)
+}
+
+module.exports = {
+    setup,
+}
+
+},{}],7:[function(require,module,exports){
+const { manager } = require('./datamanager.js')
+const storageModule = require('./storage.js')
+
+const genericSort = (list, key, ascending, customOrder) => {
+    let sorted
+    if (customOrder) {
+        sorted = list.sort((a, b) => {
+            const aValue = a.result.toLowerCase()
+            const bValue = b.result.toLowerCase()
+
+            const aIndex = customOrder.findIndex((item) => item.toLowerCase() === aValue)
+            const bIndex = customOrder.findIndex((item) => item.toLowerCase() === bValue)
+
+            // Compare the indices to determine the sort order
+            return aIndex - bIndex
+        })
+    } else {
+        sorted = list.sort((a, b) => a[key] === b[key] ? 0 : a[key] > b[key] ? 1 : -1)
+    }
+
+    if (ascending) {
+        sorted.reverse()
+    }
+    return sorted
+}
+
+const durationSort = (list, ascending) => {
+    const parseDuration = (duration) => {
+        if (duration.includes(':')) {
+            // If it's in the format "HH:mm:ss"
+            const [hours, minutes, seconds] = duration.split(':').map(Number)
+            return (hours * 3600 + minutes * 60 + seconds) * 1000
+        } else {
+            // If it's in the format "nnn ms"
+            return parseInt(duration)
+        }
+    }
+    const sorted = list.sort((a, b) => parseDuration(a['duration']) - parseDuration(b['duration']))
+    if (ascending) {
+        sorted.reverse()
+    }
+    return sorted
+}
+
+const doInitSort = () => {
+    const type = storageModule.getSort(manager.initialSort)
+    const ascending = storageModule.getSortDirection()
+    const list = manager.testSubset
+    const initialOrder = ['Error', 'Failed', 'Rerun', 'XFailed', 'XPassed', 'Skipped', 'Passed']
+
+    storageModule.setSort(type)
+    storageModule.setSortDirection(ascending)
+
+    if (type?.toLowerCase() === 'original') {
+        manager.setRender(list)
+    } else {
+        let sortedList
+        switch (type) {
+        case 'duration':
+            sortedList = durationSort(list, ascending)
+            break
+        case 'result':
+            sortedList = genericSort(list, type, ascending, initialOrder)
+            break
+        default:
+            sortedList = genericSort(list, type, ascending)
+            break
+        }
+        manager.setRender(sortedList)
+    }
+}
+
+const doSort = (type, skipDirection) => {
+    const newSortType = storageModule.getSort(manager.initialSort) !== type
+    const currentAsc = storageModule.getSortDirection()
+    let ascending
+    if (skipDirection) {
+        ascending = currentAsc
+    } else {
+        ascending = newSortType ? false : !currentAsc
+    }
+    storageModule.setSort(type)
+    storageModule.setSortDirection(ascending)
+
+    const list = manager.testSubset
+    const sortedList = type === 'duration' ? durationSort(list, ascending) : genericSort(list, type, ascending)
+    manager.setRender(sortedList)
+}
+
+module.exports = {
+    doInitSort,
+    doSort,
+}
+
+},{"./datamanager.js":1,"./storage.js":8}],8:[function(require,module,exports){
+const possibleFilters = [
+    'passed',
+    'skipped',
+    'failed',
+    'error',
+    'xfailed',
+    'xpassed',
+    'rerun',
+]
+
+const getVisible = () => {
+    const url = new URL(window.location.href)
+    const settings = new URLSearchParams(url.search).get('visible')
+    const lower = (item) => {
+        const lowerItem = item.toLowerCase()
+        if (possibleFilters.includes(lowerItem)) {
+            return lowerItem
+        }
+        return null
+    }
+    return settings === null ?
+        possibleFilters :
+        [...new Set(settings?.split(',').map(lower).filter((item) => item))]
+}
+
+const hideCategory = (categoryToHide) => {
+    const url = new URL(window.location.href)
+    const visibleParams = new URLSearchParams(url.search).get('visible')
+    const currentVisible = visibleParams ? visibleParams.split(',') : [...possibleFilters]
+    const settings = [...new Set(currentVisible)].filter((f) => f !== categoryToHide).join(',')
+
+    url.searchParams.set('visible', settings)
+    window.history.pushState({}, null, unescape(url.href))
+}
+
+const showCategory = (categoryToShow) => {
+    if (typeof window === 'undefined') {
+        return
+    }
+    const url = new URL(window.location.href)
+    const currentVisible = new URLSearchParams(url.search).get('visible')?.split(',').filter(Boolean) ||
+        [...possibleFilters]
+    const settings = [...new Set([categoryToShow, ...currentVisible])]
+    const noFilter = possibleFilters.length === settings.length || !settings.length
+
+    noFilter ? url.searchParams.delete('visible') : url.searchParams.set('visible', settings.join(','))
+    window.history.pushState({}, null, unescape(url.href))
+}
+
+const getSort = (initialSort) => {
+    const url = new URL(window.location.href)
+    let sort = new URLSearchParams(url.search).get('sort')
+    if (!sort) {
+        sort = initialSort || 'result'
+    }
+    return sort
+}
+
+const setSort = (type) => {
+    const url = new URL(window.location.href)
+    url.searchParams.set('sort', type)
+    window.history.pushState({}, null, unescape(url.href))
+}
+
+const getCollapsedCategory = (renderCollapsed) => {
+    let categories
+    if (typeof window !== 'undefined') {
+        const url = new URL(window.location.href)
+        const collapsedItems = new URLSearchParams(url.search).get('collapsed')
+        switch (true) {
+        case !renderCollapsed && collapsedItems === null:
+            categories = ['passed']
+            break
+        case collapsedItems?.length === 0 || /^["']{2}$/.test(collapsedItems):
+            categories = []
+            break
+        case /^all$/.test(collapsedItems) || collapsedItems === null && /^all$/.test(renderCollapsed):
+            categories = [...possibleFilters]
+            break
+        default:
+            categories = collapsedItems?.split(',').map((item) => item.toLowerCase()) || renderCollapsed
+            break
+        }
+    } else {
+        categories = []
+    }
+    return categories
+}
+
+const getSortDirection = () => JSON.parse(sessionStorage.getItem('sortAsc')) || false
+const setSortDirection = (ascending) => sessionStorage.setItem('sortAsc', ascending)
+
+const getCollapsedIds = () => JSON.parse(sessionStorage.getItem('collapsedIds')) || []
+const setCollapsedIds = (list) => sessionStorage.setItem('collapsedIds', JSON.stringify(list))
+
+module.exports = {
+    getVisible,
+    hideCategory,
+    showCategory,
+    getCollapsedIds,
+    setCollapsedIds,
+    getSort,
+    setSort,
+    getSortDirection,
+    setSortDirection,
+    getCollapsedCategory,
+    possibleFilters,
+}
+
+},{}]},{},[4]);
+    </script>
+  </footer>
+</html>

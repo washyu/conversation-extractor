@@ -17,7 +17,14 @@ def test_generate_dynamic_keywords_basic():
     FEATURE: Basic dynamic keyword generation
 
     Test that we can extract keywords from a conversation dynamically.
+
+    Verifies that:
+    - Keywords are generated from conversation text
+    - Expected keywords like 'dictionary' are identified
+    - Keywords are properly sorted by length
     """
+    print("\n=== Testing basic dynamic keyword generation ===")
+
     # Given a simple conversation
     conversation = """
     USER: I'm having trouble with my Python code. It keeps giving me errors with dictionaries.
@@ -29,20 +36,42 @@ def test_generate_dynamic_keywords_basic():
     USER: That's helpful! Also, I'm working on a Flask project and need to handle form data.
     ASSISTANT: Flask's request object has a form attribute that contains form data as a dictionary.
     """
+    print(f"Sample conversation: {len(conversation)} characters")
 
     # When we generate dynamic keywords
+    print("Generating dynamic keywords...")
     keywords = generate_dynamic_keywords(conversation)
 
     # Then we should get relevant keywords
+    print(f"Generated {len(keywords)} keywords:")
+    print(", ".join(keywords[:10]) + ("..." if len(keywords) > 10 else ""))
+
     assert len(keywords) > 0, "Should generate at least one keyword"
-    assert any("dictionary" in kw.lower() for kw in keywords), "Should identify 'dictionary' as a keyword"
+    print("✓ Generated at least one keyword")
+
+    # Check for dictionary keyword
+    has_dictionary = any("dictionary" in kw.lower() for kw in keywords)
+    print(f"Checking for 'dictionary' keyword: {'Found' if has_dictionary else 'Not found'}")
+    assert has_dictionary, "Should identify 'dictionary' as a keyword"
+    print("✓ Found 'dictionary' as a keyword")
+
     # Note: 'key' might be filtered out as it's a short word, so we'll check for related terms
-    assert any(kw.lower() in ["key", "keys", "keyerror", "keyword"] for kw in keywords) or \
-           any("dict" in kw.lower() for kw in keywords), "Should identify dictionary-related keywords"
+    has_key_related = any(kw.lower() in ["key", "keys", "keyerror", "keyword"] for kw in keywords) or \
+                      any("dict" in kw.lower() for kw in keywords)
+    print(f"Checking for key-related keywords: {'Found' if has_key_related else 'Not found'}")
+    assert has_key_related, "Should identify dictionary-related keywords"
+    print("✓ Found key-related keywords")
 
     # And the keywords should be sorted by length (longer first)
+    print("Checking keyword sorting by length...")
+    is_sorted = True
     for i in range(len(keywords) - 1):
-        assert len(keywords[i]) >= len(keywords[i+1]), "Keywords should be sorted by length"
+        if len(keywords[i]) < len(keywords[i+1]):
+            is_sorted = False
+            print(f"  Not sorted: '{keywords[i]}' ({len(keywords[i])}) before '{keywords[i+1]}' ({len(keywords[i+1])})")
+            break
+    assert is_sorted, "Keywords should be sorted by length"
+    print("✓ Keywords are properly sorted by length")
 
 
 def test_generate_dynamic_keywords_with_existing():

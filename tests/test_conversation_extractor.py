@@ -31,12 +31,24 @@ def sample_file(tmp_path, sample_conversation):
 
 
 def test_load_conversation(sample_file):
-    """Test loading a conversation from a file."""
+    """Test loading a conversation from a file.
+
+    Verifies that:
+    - The file can be loaded successfully
+    - The content is not empty
+    - Expected keywords are present in the content
+    """
+    print(f"\nLoading conversation from file: {sample_file}")
     content = load_conversation(sample_file)
-    assert content is not None
-    assert len(content) > 0
-    assert "Python" in content
-    assert "pandas" in content
+
+    print(f"Content loaded: {len(content)} characters")
+    assert content is not None, "Content should not be None"
+    assert len(content) > 0, "Content should not be empty"
+
+    print(f"Checking for expected keywords in content...")
+    assert "Python" in content, "'Python' should be in the content"
+    assert "pandas" in content, "'pandas' should be in the content"
+    print(f"✓ All expected keywords found in content")
 
 
 def test_load_conversation_nonexistent_file():
@@ -46,38 +58,60 @@ def test_load_conversation_nonexistent_file():
 
 
 def test_extract_context_single_keyword(sample_conversation):
-    """Test extracting context for a single keyword."""
-    results = extract_context(sample_conversation, ["Python"], context_lines=1)
-    
+    """Test extracting context for a single keyword.
+
+    Verifies that:
+    - The keyword 'Python' is found in the conversation
+    - Multiple occurrences are detected
+    - Context lines are properly included
+    - The matched line contains the keyword
+    """
+    keyword = "Python"
+    context_lines = 1
+    print(f"\nExtracting context for keyword: '{keyword}' with {context_lines} context lines")
+
+    results = extract_context(sample_conversation, [keyword], context_lines=context_lines)
+
     # Check that we found the keyword
-    assert "Python" in results
-    
+    print(f"Checking if keyword '{keyword}' was found...")
+    assert keyword in results, f"Keyword '{keyword}' should be in results"
+    print(f"✓ Keyword '{keyword}' found in results")
+
     # Check that we found at least 2 occurrences
-    assert len(results["Python"]) >= 2
-    
+    occurrences = len(results[keyword])
+    print(f"Found {occurrences} occurrences of '{keyword}'")
+    assert occurrences >= 2, f"Should find at least 2 occurrences of '{keyword}'"
+    print(f"✓ Found multiple occurrences of '{keyword}'")
+
     # Check that context is included
-    first_match = results["Python"][0]
+    first_match = results[keyword][0]
     matched_line, context = first_match
-    
-    # The matched line should contain "Python"
-    assert "Python" in matched_line
-    
+
+    print(f"First matched line: '{matched_line.strip()}'")
+    # The matched line should contain the keyword
+    assert keyword in matched_line, f"Matched line should contain '{keyword}'"
+    print(f"✓ Matched line contains '{keyword}'")
+
     # Context should have at least 2 lines (matched line + 1 context line)
-    assert len(context) >= 2
+    print(f"Context has {len(context)} lines")
+    for i, line in enumerate(context):
+        print(f"  Context[{i}]: '{line.strip()}'")
+    assert len(context) >= 2, f"Context should have at least 2 lines (matched line + {context_lines} context line)"
+    print(f"✓ Context includes expected number of lines")
 
 
 def test_extract_context_multiple_keywords(sample_conversation):
     """Test extracting context for multiple keywords."""
     results = extract_context(sample_conversation, ["Python", "pandas"], context_lines=1)
-    
+
     # Check that both keywords were found
     assert "Python" in results
     assert "pandas" in results
-    
+
     # Check pandas context
     pandas_match = results["pandas"][0]
     matched_line, context = pandas_match
-    
+
     assert "pandas" in matched_line
     assert "numpy" in matched_line  # Should be in the same line
     assert len(context) >= 2  # At least 2 lines of context
@@ -105,7 +139,7 @@ def test_extract_context_boundaries(sample_conversation):
     _, context = first_match
     # Should not go beyond the start of the text
     assert len(context) <= 3  # matched line + up to 2 context lines
-    
+
     # Last line
     results = extract_context(sample_conversation, ["more questions"], context_lines=2)
     assert "more questions" in results
@@ -122,12 +156,12 @@ def test_extract_context_varying_context_size(sample_conversation):
     assert "Python" in results_0
     _, context_0 = results_0["Python"][0]
     assert len(context_0) == 1  # Just the matched line
-    
+
     # Small context
     results_1 = extract_context(sample_conversation, ["Python"], context_lines=1)
     _, context_1 = results_1["Python"][0]
     assert len(context_1) > len(context_0)
-    
+
     # Larger context
     results_3 = extract_context(sample_conversation, ["Python"], context_lines=3)
     _, context_3 = results_3["Python"][0]
@@ -139,7 +173,7 @@ def test_real_file_integration(sample_file):
     # Test the full workflow
     content = load_conversation(sample_file)
     results = extract_context(content, ["Python", "data"], context_lines=2)
-    
+
     assert "Python" in results
     assert "data" in results
     assert len(results["Python"]) >= 2
